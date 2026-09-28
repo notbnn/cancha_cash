@@ -530,26 +530,21 @@ class ReporteEventoScreen extends ConsumerWidget {
                       key: tarjetaKey,
                       child: _TarjetaInforme(
                         titulo:
-                            (evento.titulo != null &&
-                                (evento.titulo as String).isNotEmpty)
-                            ? evento.titulo as String
+                            (evento.titulo != null && evento.titulo!.isNotEmpty)
+                            ? evento.titulo!
                             : '${evento.fechaExacta.day.toString().padLeft(2, '0')}/${evento.fechaExacta.month.toString().padLeft(2, '0')}/${evento.fechaExacta.year}',
                         fecha:
                             '${evento.fechaExacta.day.toString().padLeft(2, '0')}/${evento.fechaExacta.month.toString().padLeft(2, '0')}/${evento.fechaExacta.year}',
-                        reserva: evento.costoReserva as double,
-                        descuentoCajaChica:
-                            evento.descuentoCajaChicaAplicado as double,
-                        recaudado: resumen.recaudado as double,
-                        excedente: resumen.excedente as double,
-                        deficit: resumen.deficit as double,
+                        reserva: evento.costoReserva,
+                        descuentoCajaChica: evento.descuentoCajaChicaAplicado,
+                        recaudado: resumen.recaudado,
+                        excedente: resumen.excedente,
+                        deficit: resumen.deficit,
                         deudores: deben
                             .map(
                               (fila) => {
                                 'nombre': fila['nombre_jugador'] as String,
-                                'deuda': _deudaDe(
-                                  fila,
-                                  evento.cuotaPorPersona as double?,
-                                ),
+                                'deuda': _deudaDe(fila, evento.cuotaPorPersona),
                               },
                             )
                             .toList(),

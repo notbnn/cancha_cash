@@ -378,6 +378,7 @@ class EventoDetalleScreen extends ConsumerWidget {
         .read(eventoFechaRepositoryProvider)
         .obtenerPorId(eventoId);
     if (evento == null) return;
+    if (!context.mounted) return;
 
     final confirmar = await showDialog<bool>(
       context: context,
@@ -554,7 +555,7 @@ class EventoDetalleScreen extends ConsumerWidget {
           eventoAsync.when(
             data: (evento) => _tarjetaQr(context, ref, evento?.qrImagenPath),
             loading: () => const SizedBox.shrink(),
-            error: (_, __) => const SizedBox.shrink(),
+            error: (_, _) => const SizedBox.shrink(),
           ),
           Card(
             margin: const EdgeInsets.all(12),
@@ -637,7 +638,7 @@ class EventoDetalleScreen extends ConsumerWidget {
                           child: AnimatedContainer(
                             duration: const Duration(milliseconds: 300),
                             color: pagado
-                                ? Colors.green.withOpacity(0.15)
+                                ? Colors.green.withValues(alpha: 0.15)
                                 : Colors.transparent,
                             child: CheckboxListTile(
                               value: pagado,

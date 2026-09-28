@@ -217,6 +217,7 @@ class HistorialCanchasScreen extends ConsumerWidget {
       ),
     );
 
+    if (!context.mounted) return;
     if (opcion == 'editar') {
       await _mostrarDialogoEditarLiga(context, ref, liga);
     } else if (opcion == 'eliminar') {
@@ -316,7 +317,7 @@ class HistorialCanchasScreen extends ConsumerWidget {
             end: Alignment.bottomRight,
             colors: [
               Theme.of(context).colorScheme.primary,
-              Theme.of(context).colorScheme.primary.withOpacity(0.75),
+              Theme.of(context).colorScheme.primary.withValues(alpha: 0.75),
             ],
           ),
         ),
