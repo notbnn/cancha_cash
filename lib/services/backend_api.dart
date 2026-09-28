@@ -27,7 +27,9 @@ class BackendApi {
       headers: {"Content-Type": "application/json"},
       body: jsonEncode({
         "fecha": fecha.toUtc().toIso8601String(),
+        // ignore: use_null_aware_elements
         if (nombreCancha != null) "nombreCancha": nombreCancha,
+        // ignore: use_null_aware_elements
         if (horaFin != null) "horaFin": horaFin,
       }),
     );
