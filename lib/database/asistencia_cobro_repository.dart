@@ -34,15 +34,19 @@ class AsistenciaCobroRepository {
   }
 
   Future<List<Map<String, dynamic>>> obtenerPorEventoConNombre(
-      int eventoId) async {
+    int eventoId,
+  ) async {
     final db = await _db;
-    return db.rawQuery('''
+    return db.rawQuery(
+      '''
       SELECT ac.*, j.nombre AS nombre_jugador, j.celular AS celular_jugador
       FROM Asistencias_Cobros ac
       JOIN Jugadores j ON j.id = ac.jugador_id
       WHERE ac.evento_id = ? AND ac.eliminado_manualmente = 0
       ORDER BY j.nombre ASC
-    ''', [eventoId]);
+    ''',
+      [eventoId],
+    );
   }
 
   Future<void> marcarPagado(
@@ -97,14 +101,19 @@ class AsistenciaCobroRepository {
         [monto, ligaId],
       );
 
-      final filas = await txn.rawQuery('''
+      final filas = await txn.rawQuery(
+        '''
         SELECT ac.evento_id, j.nombre
         FROM Asistencias_Cobros ac
         JOIN Jugadores j ON j.id = ac.jugador_id
         WHERE ac.id = ?
-      ''', [asistenciaId]);
+      ''',
+        [asistenciaId],
+      );
       final nombre = filas.isNotEmpty ? filas.first['nombre'] as String? : null;
-      final eventoId = filas.isNotEmpty ? filas.first['evento_id'] as int? : null;
+      final eventoId = filas.isNotEmpty
+          ? filas.first['evento_id'] as int?
+          : null;
 
       await txn.insert('Movimientos_Caja_Chica', {
         'liga_id': ligaId,
@@ -118,17 +127,21 @@ class AsistenciaCobroRepository {
 
   Future<double> totalRecaudado(int eventoId) async {
     final db = await _db;
-    final resultado = await db.rawQuery('''
+    final resultado = await db.rawQuery(
+      '''
       SELECT COALESCE(SUM(monto_pagado), 0) AS total
       FROM Asistencias_Cobros
       WHERE evento_id = ? AND estado = ? AND eliminado_manualmente = 0
-    ''', [eventoId, EstadoAsistencia.pagado]);
+    ''',
+      [eventoId, EstadoAsistencia.pagado],
+    );
     return (resultado.first['total'] as num).toDouble();
   }
 
   Future<List<Map<String, dynamic>>> obtenerMorosos() async {
     final db = await _db;
-    return db.rawQuery('''
+    return db.rawQuery(
+      '''
       SELECT
         lc.id AS liga_id,
         lc.nombre AS nombre_liga,
@@ -143,7 +156,9 @@ class AsistenciaCobroRepository {
       WHERE ac.estado = ? AND ac.eliminado_manualmente = 0
       GROUP BY lc.id, lc.nombre, j.id, j.nombre
       ORDER BY lc.nombre ASC, deuda_total DESC
-    ''', [EstadoAsistencia.debe]);
+    ''',
+      [EstadoAsistencia.debe],
+    );
   }
 
   Future<void> eliminar(int id) async {

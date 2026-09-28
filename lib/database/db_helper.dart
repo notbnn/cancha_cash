@@ -108,18 +108,24 @@ class DBHelper {
     ''');
 
     await db.execute(
-        'CREATE INDEX idx_eventos_liga ON Eventos_Fechas (liga_id)');
+      'CREATE INDEX idx_eventos_liga ON Eventos_Fechas (liga_id)',
+    );
     await db.execute(
-        'CREATE INDEX idx_asistencias_evento ON Asistencias_Cobros (evento_id)');
+      'CREATE INDEX idx_asistencias_evento ON Asistencias_Cobros (evento_id)',
+    );
     await db.execute(
-        'CREATE INDEX idx_asistencias_jugador ON Asistencias_Cobros (jugador_id)');
+      'CREATE INDEX idx_asistencias_jugador ON Asistencias_Cobros (jugador_id)',
+    );
     await db.execute(
-        'CREATE INDEX idx_movimientos_liga ON Movimientos_Caja_Chica (liga_id)');
+      'CREATE INDEX idx_movimientos_liga ON Movimientos_Caja_Chica (liga_id)',
+    );
   }
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
     if (oldVersion < 2) {
-      await db.execute('ALTER TABLE Eventos_Fechas ADD COLUMN admin_token TEXT');
+      await db.execute(
+        'ALTER TABLE Eventos_Fechas ADD COLUMN admin_token TEXT',
+      );
     }
     if (oldVersion < 3) {
       await db.execute('ALTER TABLE Eventos_Fechas ADD COLUMN titulo TEXT');
@@ -132,7 +138,8 @@ class DBHelper {
     }
     if (oldVersion < 6) {
       await db.execute(
-          'ALTER TABLE Eventos_Fechas ADD COLUMN cuota_por_persona REAL');
+        'ALTER TABLE Eventos_Fechas ADD COLUMN cuota_por_persona REAL',
+      );
     }
     if (oldVersion < 7) {
       await db.execute('''
@@ -147,11 +154,13 @@ class DBHelper {
         )
       ''');
       await db.execute(
-          'CREATE INDEX idx_movimientos_liga ON Movimientos_Caja_Chica (liga_id)');
+        'CREATE INDEX idx_movimientos_liga ON Movimientos_Caja_Chica (liga_id)',
+      );
     }
     if (oldVersion < 8) {
       await db.execute(
-          'ALTER TABLE Asistencias_Cobros ADD COLUMN eliminado_manualmente INTEGER NOT NULL DEFAULT 0');
+        'ALTER TABLE Asistencias_Cobros ADD COLUMN eliminado_manualmente INTEGER NOT NULL DEFAULT 0',
+      );
     }
   }
 }

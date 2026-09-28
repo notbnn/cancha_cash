@@ -9,7 +9,8 @@ class BackendApi {
   // en el próximo paso según tu caso (emulador, celular físico o
   // escritorio).
   static const String _baseUrl = "https://cancha-semanal-backend.onrender.com";
-    /// Arma la URL pública completa a partir del slug que devuelve el
+
+  /// Arma la URL pública completa a partir del slug que devuelve el
   /// backend — es la que la app va a guardar como `linkPublico`.
   static String urlPublica(String slug) => "$_baseUrl/e/$slug";
 
@@ -32,7 +33,9 @@ class BackendApi {
     );
 
     if (respuesta.statusCode != 201) {
-      throw Exception("No se pudo crear el evento en el backend: ${respuesta.body}");
+      throw Exception(
+        "No se pudo crear el evento en el backend: ${respuesta.body}",
+      );
     }
 
     return jsonDecode(respuesta.body) as Map<String, dynamic>;
@@ -49,12 +52,15 @@ class BackendApi {
     );
 
     if (respuesta.statusCode != 200) {
-      throw Exception("No se pudieron traer las confirmaciones: ${respuesta.body}");
+      throw Exception(
+        "No se pudieron traer las confirmaciones: ${respuesta.body}",
+      );
     }
 
     final lista = jsonDecode(respuesta.body) as List<dynamic>;
     return lista.cast<Map<String, dynamic>>();
   }
+
   /// Sube el QR de cobro al backend, como base64 (no hace falta ningún
   /// servicio de hosting de imágenes — el string se guarda tal cual en
   /// el campo `qrUrl`, y la página pública lo puede mostrar directo en

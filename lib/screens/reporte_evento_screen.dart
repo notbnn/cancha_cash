@@ -42,9 +42,14 @@ class _TarjetaInforme extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(etiqueta, style: const TextStyle(fontSize: 16, color: Colors.black54)),
-          Text(valor.toStringAsFixed(0),
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+          Text(
+            etiqueta,
+            style: const TextStyle(fontSize: 16, color: Colors.black54),
+          ),
+          Text(
+            valor.toStringAsFixed(0),
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+          ),
         ],
       ),
     );
@@ -73,20 +78,29 @@ class _TarjetaInforme extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('CANCHA CASH',
-                    style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 2)),
+                const Text(
+                  'CANCHA CASH',
+                  style: TextStyle(
+                    color: Colors.white70,
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 2,
+                  ),
+                ),
                 const SizedBox(height: 8),
-                Text(titulo,
-                    style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold)),
+                Text(
+                  titulo,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
                 const SizedBox(height: 4),
-                Text(fecha, style: const TextStyle(color: Colors.white70, fontSize: 15)),
+                Text(
+                  fecha,
+                  style: const TextStyle(color: Colors.white70, fontSize: 15),
+                ),
               ],
             ),
           ),
@@ -103,14 +117,18 @@ class _TarjetaInforme extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: sobro ? const Color(0xFFDCFCE7) : const Color(0xFFFEF3C7),
+                    color: sobro
+                        ? const Color(0xFFDCFCE7)
+                        : const Color(0xFFFEF3C7),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(
                     children: [
                       Icon(
                         sobro ? Icons.check_circle : Icons.error_outline,
-                        color: sobro ? const Color(0xFF15803D) : const Color(0xFFB45309),
+                        color: sobro
+                            ? const Color(0xFF15803D)
+                            : const Color(0xFFB45309),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
@@ -120,7 +138,9 @@ class _TarjetaInforme extends StatelessWidget {
                               : 'Faltaron ${deficit.toStringAsFixed(0)} → se cobran la próxima semana',
                           style: TextStyle(
                             fontWeight: FontWeight.w600,
-                            color: sobro ? const Color(0xFF15803D) : const Color(0xFFB45309),
+                            color: sobro
+                                ? const Color(0xFF15803D)
+                                : const Color(0xFFB45309),
                           ),
                         ),
                       ),
@@ -128,29 +148,44 @@ class _TarjetaInforme extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 24),
-                const Text('Deudores',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                const Text(
+                  'Deudores',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
                 const SizedBox(height: 8),
                 if (deudores.isEmpty)
-                  const Text('Nadie debe — todos al día.',
-                      style: TextStyle(color: Colors.black54))
+                  const Text(
+                    'Nadie debe — todos al día.',
+                    style: TextStyle(color: Colors.black54),
+                  )
                 else
-                  ...deudores.map((d) => Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 3),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(d['nombre'] as String, style: const TextStyle(fontSize: 15)),
-                            Text((d['deuda'] as double).toStringAsFixed(0),
-                                style: const TextStyle(
-                                    fontSize: 15, fontWeight: FontWeight.w600)),
-                          ],
-                        ),
-                      )),
+                  ...deudores.map(
+                    (d) => Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 3),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            d['nombre'] as String,
+                            style: const TextStyle(fontSize: 15),
+                          ),
+                          Text(
+                            (d['deuda'] as double).toStringAsFixed(0),
+                            style: const TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 const SizedBox(height: 20),
                 const Center(
-                  child: Text('Generado con Cancha Cash',
-                      style: TextStyle(fontSize: 11, color: Colors.black38)),
+                  child: Text(
+                    'Generado con Cancha Cash',
+                    style: TextStyle(fontSize: 11, color: Colors.black38),
+                  ),
                 ),
               ],
             ),
@@ -172,8 +207,9 @@ class ReporteEventoScreen extends ConsumerWidget {
     Map<String, dynamic> fila,
     int ligaId,
   ) async {
-    final montoControlador =
-        TextEditingController(text: fila['monto_pagado'].toString());
+    final montoControlador = TextEditingController(
+      text: fila['monto_pagado'].toString(),
+    );
     String metodo = MetodoPago.qr;
 
     final confirmado = await showDialog<bool>(
@@ -199,7 +235,9 @@ class ReporteEventoScreen extends ConsumerWidget {
                 segments: const [
                   ButtonSegment(value: MetodoPago.qr, label: Text('QR')),
                   ButtonSegment(
-                      value: MetodoPago.efectivo, label: Text('Efectivo')),
+                    value: MetodoPago.efectivo,
+                    label: Text('Efectivo'),
+                  ),
                 ],
                 selected: {metodo},
                 onSelectionChanged: (nuevo) =>
@@ -209,11 +247,13 @@ class ReporteEventoScreen extends ConsumerWidget {
           ),
           actions: [
             TextButton(
-                onPressed: () => Navigator.pop(context, false),
-                child: const Text('Cancelar')),
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancelar'),
+            ),
             FilledButton(
-                onPressed: () => Navigator.pop(context, true),
-                child: const Text('Confirmar')),
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Confirmar'),
+            ),
           ],
         ),
       ),
@@ -221,7 +261,9 @@ class ReporteEventoScreen extends ConsumerWidget {
 
     final monto = double.tryParse(montoControlador.text);
     if (confirmado == true && monto != null) {
-      await ref.read(asistenciasProvider(eventoId).notifier).pagarDeudaTardia(
+      await ref
+          .read(asistenciasProvider(eventoId).notifier)
+          .pagarDeudaTardia(
             asistenciaId: fila['id'] as int,
             ligaID: ligaId,
             monto: monto,
@@ -248,30 +290,38 @@ class ReporteEventoScreen extends ConsumerWidget {
         '${evento.fechaExacta.day.toString().padLeft(2, '0')}/${evento.fechaExacta.month.toString().padLeft(2, '0')}/${evento.fechaExacta.year}';
     final titulo =
         (evento.titulo != null && (evento.titulo as String).isNotEmpty)
-            ? evento.titulo as String
-            : fecha;
+        ? evento.titulo as String
+        : fecha;
 
     final buffer = StringBuffer()
       ..writeln('📋 Informe — $titulo')
       ..writeln('📅 $fecha')
       ..writeln()
-      ..writeln('Reserva: ${(evento.costoReserva as double).toStringAsFixed(0)}');
+      ..writeln(
+        'Reserva: ${(evento.costoReserva as double).toStringAsFixed(0)}',
+      );
 
     final descuento = evento.descuentoCajaChicaAplicado as double;
     if (descuento > 0) {
-      buffer.writeln('Cubierto por caja chica: ${descuento.toStringAsFixed(0)}');
+      buffer.writeln(
+        'Cubierto por caja chica: ${descuento.toStringAsFixed(0)}',
+      );
     }
 
     buffer
-      ..writeln('Recaudado: ${(resumen.recaudado as double).toStringAsFixed(0)}')
+      ..writeln(
+        'Recaudado: ${(resumen.recaudado as double).toStringAsFixed(0)}',
+      )
       ..writeln();
 
     if ((resumen.excedente as double) > 0) {
       buffer.writeln(
-          '✅ Sobraron ${(resumen.excedente as double).toStringAsFixed(0)} → van a la caja chica');
+        '✅ Sobraron ${(resumen.excedente as double).toStringAsFixed(0)} → van a la caja chica',
+      );
     } else {
       buffer.writeln(
-          '⚠️ Faltaron ${(resumen.deficit as double).toStringAsFixed(0)} → se cobran la próxima semana junto con la cuota');
+        '⚠️ Faltaron ${(resumen.deficit as double).toStringAsFixed(0)} → se cobran la próxima semana junto con la cuota',
+      );
     }
 
     buffer
@@ -283,7 +333,9 @@ class ReporteEventoScreen extends ConsumerWidget {
     } else {
       for (final fila in deben) {
         final deuda = _deudaDe(fila, evento.cuotaPorPersona as double?);
-        buffer.writeln('- ${fila['nombre_jugador']} (${deuda.toStringAsFixed(0)})');
+        buffer.writeln(
+          '- ${fila['nombre_jugador']} (${deuda.toStringAsFixed(0)})',
+        );
       }
     }
 
@@ -296,8 +348,9 @@ class ReporteEventoScreen extends ConsumerWidget {
     String textoInforme,
   ) async {
     try {
-      final boundary = tarjetaKey.currentContext?.findRenderObject()
-          as RenderRepaintBoundary?;
+      final boundary =
+          tarjetaKey.currentContext?.findRenderObject()
+              as RenderRepaintBoundary?;
       if (boundary == null) return;
 
       final imagen = await boundary.toImage(pixelRatio: 3.0);
@@ -328,10 +381,12 @@ class ReporteEventoScreen extends ConsumerWidget {
     final evento = eventoAsync.value;
     final ligaId = evento?.ligaId;
 
-    final pagaron =
-        asistencias.where((f) => f['estado'] == EstadoAsistencia.pagado).length;
-    final deben =
-        asistencias.where((f) => f['estado'] == EstadoAsistencia.debe).toList();
+    final pagaron = asistencias
+        .where((f) => f['estado'] == EstadoAsistencia.pagado)
+        .length;
+    final deben = asistencias
+        .where((f) => f['estado'] == EstadoAsistencia.debe)
+        .toList();
 
     final tarjetaKey = GlobalKey();
 
@@ -391,9 +446,10 @@ class ReporteEventoScreen extends ConsumerWidget {
                                             title: '$pagaron pagó',
                                             radius: 60,
                                             titleStyle: const TextStyle(
-                                                fontSize: 12,
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.bold),
+                                              fontSize: 12,
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold,
+                                            ),
                                           ),
                                           PieChartSectionData(
                                             value: deben.length.toDouble(),
@@ -401,9 +457,10 @@ class ReporteEventoScreen extends ConsumerWidget {
                                             title: '${deben.length} debe',
                                             radius: 60,
                                             titleStyle: const TextStyle(
-                                                fontSize: 12,
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.bold),
+                                              fontSize: 12,
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold,
+                                            ),
                                           ),
                                         ],
                                       ),
@@ -424,15 +481,19 @@ class ReporteEventoScreen extends ConsumerWidget {
                             Text(
                               _saldoLiga(ligas, ligaId).toStringAsFixed(0),
                               style: const TextStyle(
-                                  fontSize: 18, fontWeight: FontWeight.bold),
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ],
                         ),
                       ),
                     ),
                     const SizedBox(height: 16),
-                    Text('Deudores (${deben.length})',
-                        style: Theme.of(context).textTheme.titleMedium),
+                    Text(
+                      'Deudores (${deben.length})',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
                     const SizedBox(height: 8),
                     if (deben.isEmpty)
                       const Padding(
@@ -440,18 +501,25 @@ class ReporteEventoScreen extends ConsumerWidget {
                         child: Text('Nadie debe — quedó todo cobrado.'),
                       )
                     else
-                      ...deben.map((fila) => Card(
-                            child: ListTile(
-                              title: Text(fila['nombre_jugador'] as String),
-                              subtitle: Text(
-                                  'Debe ${_deudaDe(fila, evento?.cuotaPorPersona).toStringAsFixed(0)}'),
-                              trailing: TextButton(
-                                onPressed: () => _mostrarDialogoPagoTardio(
-                                    context, ref, fila, ligaId),
-                                child: const Text('Marcar pagado'),
-                              ),
+                      ...deben.map(
+                        (fila) => Card(
+                          child: ListTile(
+                            title: Text(fila['nombre_jugador'] as String),
+                            subtitle: Text(
+                              'Debe ${_deudaDe(fila, evento?.cuotaPorPersona).toStringAsFixed(0)}',
                             ),
-                          )),
+                            trailing: TextButton(
+                              onPressed: () => _mostrarDialogoPagoTardio(
+                                context,
+                                ref,
+                                fila,
+                                ligaId,
+                              ),
+                              child: const Text('Marcar pagado'),
+                            ),
+                          ),
+                        ),
+                      ),
                   ],
                 ),
                 if (evento != null)
@@ -461,22 +529,29 @@ class ReporteEventoScreen extends ConsumerWidget {
                     child: RepaintBoundary(
                       key: tarjetaKey,
                       child: _TarjetaInforme(
-                        titulo: (evento.titulo != null &&
+                        titulo:
+                            (evento.titulo != null &&
                                 (evento.titulo as String).isNotEmpty)
                             ? evento.titulo as String
                             : '${evento.fechaExacta.day.toString().padLeft(2, '0')}/${evento.fechaExacta.month.toString().padLeft(2, '0')}/${evento.fechaExacta.year}',
                         fecha:
                             '${evento.fechaExacta.day.toString().padLeft(2, '0')}/${evento.fechaExacta.month.toString().padLeft(2, '0')}/${evento.fechaExacta.year}',
                         reserva: evento.costoReserva as double,
-                        descuentoCajaChica: evento.descuentoCajaChicaAplicado as double,
+                        descuentoCajaChica:
+                            evento.descuentoCajaChicaAplicado as double,
                         recaudado: resumen.recaudado as double,
                         excedente: resumen.excedente as double,
                         deficit: resumen.deficit as double,
                         deudores: deben
-                            .map((fila) => {
-                                  'nombre': fila['nombre_jugador'] as String,
-                                  'deuda': _deudaDe(fila, evento.cuotaPorPersona as double?),
-                                })
+                            .map(
+                              (fila) => {
+                                'nombre': fila['nombre_jugador'] as String,
+                                'deuda': _deudaDe(
+                                  fila,
+                                  evento.cuotaPorPersona as double?,
+                                ),
+                              },
+                            )
                             .toList(),
                       ),
                     ),
@@ -490,8 +565,10 @@ class ReporteEventoScreen extends ConsumerWidget {
     return Column(
       children: [
         Text(etiqueta, style: const TextStyle(fontSize: 12)),
-        Text(valor.toStringAsFixed(0),
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        Text(
+          valor.toStringAsFixed(0),
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
       ],
     );
   }

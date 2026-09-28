@@ -20,8 +20,7 @@ class JugadorRepository {
 
   Future<Jugador?> obtenerPorId(int id) async {
     final db = await _db;
-    final filas =
-        await db.query('Jugadores', where: 'id = ?', whereArgs: [id]);
+    final filas = await db.query('Jugadores', where: 'id = ?', whereArgs: [id]);
     if (filas.isEmpty) return null;
     return Jugador.fromMap(filas.first);
   }
@@ -51,15 +50,20 @@ class JugadorRepository {
 
   Future<void> actualizar(Jugador jugador) async {
     final db = await _db;
-    await db.update('Jugadores', jugador.toMap(),
-        where: 'id = ?', whereArgs: [jugador.id]);
+    await db.update(
+      'Jugadores',
+      jugador.toMap(),
+      where: 'id = ?',
+      whereArgs: [jugador.id],
+    );
   }
 
   Future<void> eliminar(int id) async {
     final db = await _db;
     await db.delete('Jugadores', where: 'id = ?', whereArgs: [id]);
   }
-    /// Jugadores agrupados por evento (categoría) — un jugador aparece en
+
+  /// Jugadores agrupados por evento (categoría) — un jugador aparece en
   /// cada categoría donde ya jugó al menos un partido (según su historial
   /// en Asistencias_Cobros). Si jugó fútbol y wally, sale en las dos —
   /// es automático, no hay que asignarlo a mano.

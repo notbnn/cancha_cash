@@ -38,7 +38,9 @@ class HistorialCanchasScreen extends ConsumerWidget {
   const HistorialCanchasScreen({super.key});
 
   Future<void> _mostrarDialogoCrearLiga(
-      BuildContext context, WidgetRef ref) async {
+    BuildContext context,
+    WidgetRef ref,
+  ) async {
     final controlador = TextEditingController();
     String? deporteSeleccionado;
 
@@ -97,7 +99,10 @@ class HistorialCanchasScreen extends ConsumerWidget {
   }
 
   Future<void> _mostrarDialogoEditarLiga(
-      BuildContext context, WidgetRef ref, LigaCategoria liga) async {
+    BuildContext context,
+    WidgetRef ref,
+    LigaCategoria liga,
+  ) async {
     final controlador = TextEditingController(text: liga.nombre);
     String? deporteSeleccionado = liga.deporte;
 
@@ -150,26 +155,29 @@ class HistorialCanchasScreen extends ConsumerWidget {
 
     final nombre = controlador.text.trim();
     if (confirmado == true && nombre.isNotEmpty) {
-      await ref.read(ligasProvider.notifier).editar(
-            liga.id!,
-            nombre: nombre,
-            deporte: deporteSeleccionado,
-          );
+      await ref
+          .read(ligasProvider.notifier)
+          .editar(liga.id!, nombre: nombre, deporte: deporteSeleccionado);
     }
   }
 
   Future<void> _confirmarEliminar(
-      BuildContext context, WidgetRef ref, LigaCategoria liga) async {
+    BuildContext context,
+    WidgetRef ref,
+    LigaCategoria liga,
+  ) async {
     final confirmar = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('¿Eliminar categoría?'),
         content: Text(
-            'Se va a borrar "${liga.nombre}" junto con todos sus partidos y confirmaciones. No se puede deshacer.'),
+          'Se va a borrar "${liga.nombre}" junto con todos sus partidos y confirmaciones. No se puede deshacer.',
+        ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancelar')),
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar'),
+          ),
           FilledButton(
             style: FilledButton.styleFrom(backgroundColor: Colors.red),
             onPressed: () => Navigator.pop(context, true),
@@ -185,7 +193,10 @@ class HistorialCanchasScreen extends ConsumerWidget {
   }
 
   Future<void> _mostrarOpciones(
-      BuildContext context, WidgetRef ref, LigaCategoria liga) async {
+    BuildContext context,
+    WidgetRef ref,
+    LigaCategoria liga,
+  ) async {
     final opcion = await showModalBottomSheet<String>(
       context: context,
       builder: (context) => SafeArea(
@@ -242,14 +253,17 @@ class HistorialCanchasScreen extends ConsumerWidget {
       );
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Error al exportar: $e')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error al exportar: $e')));
       }
     }
   }
 
   Widget _tarjetaProximoPartido(
-      BuildContext context, Map<String, dynamic>? proximo) {
+    BuildContext context,
+    Map<String, dynamic>? proximo,
+  ) {
     if (proximo == null) return const SizedBox.shrink();
 
     final fecha = DateTime.parse(proximo['fecha_exacta'] as String);
@@ -268,7 +282,8 @@ class HistorialCanchasScreen extends ConsumerWidget {
         leading: const Icon(Icons.event),
         title: Text('Próximo: $tituloPartido'),
         subtitle: Text(
-            '${proximo['nombre_liga']} · $fechaTexto · $horaTexto · $confirmados confirmado(s)'),
+          '${proximo['nombre_liga']} · $fechaTexto · $horaTexto · $confirmados confirmado(s)',
+        ),
         trailing: const Icon(Icons.chevron_right),
         onTap: () {
           Navigator.push(
@@ -336,7 +351,10 @@ class HistorialCanchasScreen extends ConsumerWidget {
     return Scaffold(
       body: Column(
         children: [
-          _encabezadoCurvo(context, ref), // 👈 NUEVO — antes era appBar: AppBar(...)
+          _encabezadoCurvo(
+            context,
+            ref,
+          ), // 👈 NUEVO — antes era appBar: AppBar(...)
           _tarjetaProximoPartido(context, proximo),
           Expanded(
             child: ligas.isEmpty
@@ -350,11 +368,11 @@ class HistorialCanchasScreen extends ConsumerWidget {
                     padding: const EdgeInsets.all(16),
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      mainAxisSpacing: 12,
-                      crossAxisSpacing: 12,
-                      childAspectRatio: 1.3,
-                    ),
+                          crossAxisCount: 2,
+                          mainAxisSpacing: 12,
+                          crossAxisSpacing: 12,
+                          childAspectRatio: 1.3,
+                        ),
                     itemCount: ligas.length,
                     itemBuilder: (context, index) {
                       final liga = ligas[index];
@@ -364,8 +382,9 @@ class HistorialCanchasScreen extends ConsumerWidget {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) =>
-                                      EventosLigaScreen(liga: liga)),
+                                builder: (context) =>
+                                    EventosLigaScreen(liga: liga),
+                              ),
                             );
                           },
                           onLongPress: () =>
@@ -382,10 +401,12 @@ class HistorialCanchasScreen extends ConsumerWidget {
                                   tag: 'liga-${liga.id}',
                                   child: Material(
                                     color: Colors.transparent,
-                                    child: Text(liga.nombre,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .titleMedium),
+                                    child: Text(
+                                      liga.nombre,
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.titleMedium,
+                                    ),
                                   ),
                                 ),
                                 const SizedBox(height: 8),

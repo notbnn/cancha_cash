@@ -16,9 +16,13 @@ class AsistenciasNotifier extends StateNotifier<List<Map<String, dynamic>>> {
   final Ref _ref;
   final int eventoId;
 
-  AsistenciasNotifier(this._repo, this._jugadorRepo, this._eventoRepo,
-      this._ref, this.eventoId)
-      : super([]) {
+  AsistenciasNotifier(
+    this._repo,
+    this._jugadorRepo,
+    this._eventoRepo,
+    this._ref,
+    this.eventoId,
+  ) : super([]) {
     cargar();
   }
 
@@ -31,7 +35,11 @@ class AsistenciasNotifier extends StateNotifier<List<Map<String, dynamic>>> {
     required double monto,
     required String metodo,
   }) async {
-    await _repo.marcarPagado(asistenciaId, montoPagado: monto, metodoPago: metodo);
+    await _repo.marcarPagado(
+      asistenciaId,
+      montoPagado: monto,
+      metodoPago: metodo,
+    );
     await cargar();
     await _ref.read(morososProvider.notifier).cargar();
   }
@@ -96,7 +104,11 @@ class AsistenciasNotifier extends StateNotifier<List<Map<String, dynamic>>> {
 
       if (await _repo.existeParaEventoYJugador(eventoId, jugadorId)) continue;
 
-      await _repo.inscribir(eventoId: eventoId, jugadorId: jugadorId, uuid: uuid);
+      await _repo.inscribir(
+        eventoId: eventoId,
+        jugadorId: jugadorId,
+        uuid: uuid,
+      );
     }
 
     await cargar();
@@ -105,10 +117,14 @@ class AsistenciasNotifier extends StateNotifier<List<Map<String, dynamic>>> {
   }
 }
 
-final asistenciasProvider = StateNotifierProvider.family<AsistenciasNotifier,
-    List<Map<String, dynamic>>, int>((ref, eventoId) {
-  final repo = ref.watch(asistenciaCobroRepositoryProvider);
-  final jugadorRepo = ref.watch(jugadorRepositoryProvider);
-  final eventoRepo = ref.watch(eventoFechaRepositoryProvider);
-  return AsistenciasNotifier(repo, jugadorRepo, eventoRepo, ref, eventoId);
-});
+final asistenciasProvider =
+    StateNotifierProvider.family<
+      AsistenciasNotifier,
+      List<Map<String, dynamic>>,
+      int
+    >((ref, eventoId) {
+      final repo = ref.watch(asistenciaCobroRepositoryProvider);
+      final jugadorRepo = ref.watch(jugadorRepositoryProvider);
+      final eventoRepo = ref.watch(eventoFechaRepositoryProvider);
+      return AsistenciasNotifier(repo, jugadorRepo, eventoRepo, ref, eventoId);
+    });

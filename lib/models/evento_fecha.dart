@@ -8,7 +8,8 @@ class EventoFecha {
   final DateTime fechaExacta;
   final String? horaFin;
   final double costoReserva;
-  final double? cuotaPorPersona; // 👈 NUEVO — null = sin cuota fija (como antes)
+  final double?
+  cuotaPorPersona; // 👈 NUEVO — null = sin cuota fija (como antes)
   final double descuentoCajaChicaAplicado;
   final double metaRecaudacion;
   final double excedenteGenerado;
@@ -38,23 +39,23 @@ class EventoFecha {
   }) : creadoEn = creadoEn ?? DateTime.now();
 
   Map<String, dynamic> toMap() => {
-        'id': id,
-        'uuid': uuid,
-        'liga_id': ligaId,
-        'titulo': titulo,
-        'fecha_exacta': fechaExacta.toIso8601String(),
-        'hora_fin': horaFin,
-        'costo_reserva': costoReserva,
-        'cuota_por_persona': cuotaPorPersona, // 👈 NUEVO
-        'descuento_caja_chica_aplicado': descuentoCajaChicaAplicado,
-        'meta_recaudacion': metaRecaudacion,
-        'excedente_generado': excedenteGenerado,
-        'estado': estado,
-        'qr_imagen_path': qrImagenPath,
-        'link_publico': linkPublico,
-        'admin_token': adminToken,
-        'creado_en': creadoEn.toIso8601String(),
-      };
+    'id': id,
+    'uuid': uuid,
+    'liga_id': ligaId,
+    'titulo': titulo,
+    'fecha_exacta': fechaExacta.toIso8601String(),
+    'hora_fin': horaFin,
+    'costo_reserva': costoReserva,
+    'cuota_por_persona': cuotaPorPersona, // 👈 NUEVO
+    'descuento_caja_chica_aplicado': descuentoCajaChicaAplicado,
+    'meta_recaudacion': metaRecaudacion,
+    'excedente_generado': excedenteGenerado,
+    'estado': estado,
+    'qr_imagen_path': qrImagenPath,
+    'link_publico': linkPublico,
+    'admin_token': adminToken,
+    'creado_en': creadoEn.toIso8601String(),
+  };
 
   factory EventoFecha.fromMap(Map<String, dynamic> map) {
     return EventoFecha(
@@ -65,9 +66,10 @@ class EventoFecha {
       fechaExacta: DateTime.parse(map['fecha_exacta'] as String),
       horaFin: map['hora_fin'] as String?,
       costoReserva: (map['costo_reserva'] as num).toDouble(),
-      cuotaPorPersona: (map['cuota_por_persona'] as num?)?.toDouble(), // 👈 NUEVO
-      descuentoCajaChicaAplicado:
-          (map['descuento_caja_chica_aplicado'] as num).toDouble(),
+      cuotaPorPersona: (map['cuota_por_persona'] as num?)
+          ?.toDouble(), // 👈 NUEVO
+      descuentoCajaChicaAplicado: (map['descuento_caja_chica_aplicado'] as num)
+          .toDouble(),
       metaRecaudacion: (map['meta_recaudacion'] as num).toDouble(),
       excedenteGenerado: (map['excedente_generado'] as num).toDouble(),
       estado: map['estado'] as String,

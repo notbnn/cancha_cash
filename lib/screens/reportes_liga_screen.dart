@@ -37,7 +37,8 @@ class ReportesLigaScreen extends ConsumerWidget {
       ),
       body: eventos.isEmpty
           ? const Center(
-              child: Text('Todavía no hay partidos en esta categoría.'))
+              child: Text('Todavía no hay partidos en esta categoría.'),
+            )
           : ListView.builder(
               itemCount: eventos.length,
               itemBuilder: (context, index) {
@@ -50,11 +51,14 @@ class ReportesLigaScreen extends ConsumerWidget {
                     cerrado ? Icons.lock : Icons.lock_open,
                     color: cerrado ? Colors.grey : Colors.green,
                   ),
-                  title: Text(evento.titulo?.isNotEmpty == true
-                      ? evento.titulo!
-                      : '${evento.fechaExacta.day}/${evento.fechaExacta.month}/${evento.fechaExacta.year}'),
+                  title: Text(
+                    evento.titulo?.isNotEmpty == true
+                        ? evento.titulo!
+                        : '${evento.fechaExacta.day}/${evento.fechaExacta.month}/${evento.fechaExacta.year}',
+                  ),
                   subtitle: Text(
-                      '${evento.fechaExacta.day}/${evento.fechaExacta.month}/${evento.fechaExacta.year} · $horaTexto · ${cerrado ? "Cerrado" : "Abierto"}'),
+                    '${evento.fechaExacta.day}/${evento.fechaExacta.month}/${evento.fechaExacta.year} · $horaTexto · ${cerrado ? "Cerrado" : "Abierto"}',
+                  ),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () {
                     Navigator.push(

@@ -17,8 +17,10 @@ class EventosPendientesNotifier
 }
 
 final eventosPendientesProvider =
-    StateNotifierProvider<EventosPendientesNotifier, List<Map<String, dynamic>>>(
-        (ref) {
-  final repo = ref.watch(eventoFechaRepositoryProvider);
-  return EventosPendientesNotifier(repo);
-});
+    StateNotifierProvider<
+      EventosPendientesNotifier,
+      List<Map<String, dynamic>>
+    >((ref) {
+      final repo = ref.watch(eventoFechaRepositoryProvider);
+      return EventosPendientesNotifier(repo);
+    });

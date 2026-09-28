@@ -9,7 +9,9 @@ class ListaAmigosScreen extends ConsumerWidget {
   const ListaAmigosScreen({super.key});
 
   Future<void> _mostrarDialogoCrearJugador(
-      BuildContext context, WidgetRef ref) async {
+    BuildContext context,
+    WidgetRef ref,
+  ) async {
     final nombreControlador = TextEditingController();
     final celularControlador = TextEditingController();
 
@@ -28,25 +30,30 @@ class ListaAmigosScreen extends ConsumerWidget {
             TextField(
               controller: celularControlador,
               keyboardType: TextInputType.phone,
-              decoration:
-                  const InputDecoration(labelText: 'Celular (opcional)'),
+              decoration: const InputDecoration(
+                labelText: 'Celular (opcional)',
+              ),
             ),
           ],
         ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancelar')),
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar'),
+          ),
           FilledButton(
-              onPressed: () => Navigator.pop(context, true),
-              child: const Text('Guardar')),
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Guardar'),
+          ),
         ],
       ),
     );
 
     final nombre = nombreControlador.text.trim();
     if (confirmado == true && nombre.isNotEmpty) {
-      await ref.read(jugadoresProvider.notifier).crear(
+      await ref
+          .read(jugadoresProvider.notifier)
+          .crear(
             nombre: nombre,
             celular: celularControlador.text.trim().isEmpty
                 ? null
@@ -59,7 +66,10 @@ class ListaAmigosScreen extends ConsumerWidget {
   }
 
   Future<bool> _eliminarJugador(
-      BuildContext context, WidgetRef ref, int id) async {
+    BuildContext context,
+    WidgetRef ref,
+    int id,
+  ) async {
     try {
       await ref.read(jugadoresProvider.notifier).eliminar(id);
       // No sabemos de antemano si estaba agrupado en una categoría o en
@@ -71,8 +81,8 @@ class ListaAmigosScreen extends ConsumerWidget {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-              content:
-                  Text('No se puede borrar: tiene pagos registrados.')),
+            content: Text('No se puede borrar: tiene pagos registrados.'),
+          ),
         );
       }
       return false;
@@ -90,12 +100,13 @@ class ListaAmigosScreen extends ConsumerWidget {
     for (final fila in filasAgrupadas) {
       final ligaId = fila['liga_id'] as int;
       grupos.putIfAbsent(
-          ligaId,
-          () => {
-                'liga_nombre': fila['liga_nombre'],
-                'liga_deporte': fila['liga_deporte'],
-                'jugadores': <Map<String, dynamic>>[],
-              });
+        ligaId,
+        () => {
+          'liga_nombre': fila['liga_nombre'],
+          'liga_deporte': fila['liga_deporte'],
+          'jugadores': <Map<String, dynamic>>[],
+        },
+      );
       (grupos[ligaId]!['jugadores'] as List<Map<String, dynamic>>).add(fila);
     }
 
@@ -116,14 +127,14 @@ class ListaAmigosScreen extends ConsumerWidget {
                     padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
                     child: Row(
                       children: [
-                        Icon(Deporte.icono(grupo['liga_deporte'] as String?),
-                            size: 18),
+                        Icon(
+                          Deporte.icono(grupo['liga_deporte'] as String?),
+                          size: 18,
+                        ),
                         const SizedBox(width: 8),
                         Text(
                           grupo['liga_nombre'] as String,
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleSmall
+                          style: Theme.of(context).textTheme.titleSmall
                               ?.copyWith(fontWeight: FontWeight.bold),
                         ),
                       ],
@@ -133,7 +144,8 @@ class ListaAmigosScreen extends ConsumerWidget {
                       in grupo['jugadores'] as List<Map<String, dynamic>>)
                     Dismissible(
                       key: ValueKey(
-                          '${grupo['liga_nombre']}-${jugador['jugador_id']}'),
+                        '${grupo['liga_nombre']}-${jugador['jugador_id']}',
+                      ),
                       direction: DismissDirection.endToStart,
                       background: Container(
                         color: Colors.red,
@@ -142,10 +154,12 @@ class ListaAmigosScreen extends ConsumerWidget {
                         child: const Icon(Icons.delete, color: Colors.white),
                       ),
                       confirmDismiss: (_) => _eliminarJugador(
-                          context, ref, jugador['jugador_id'] as int),
+                        context,
+                        ref,
+                        jugador['jugador_id'] as int,
+                      ),
                       child: ListTile(
-                        leading:
-                            const CircleAvatar(child: Icon(Icons.person)),
+                        leading: const CircleAvatar(child: Icon(Icons.person)),
                         title: Text(jugador['jugador_nombre'] as String),
                         subtitle: jugador['jugador_celular'] != null
                             ? Text(jugador['jugador_celular'] as String)
@@ -174,8 +188,7 @@ class ListaAmigosScreen extends ConsumerWidget {
                       confirmDismiss: (_) =>
                           _eliminarJugador(context, ref, jugador.id!),
                       child: ListTile(
-                        leading:
-                            const CircleAvatar(child: Icon(Icons.person)),
+                        leading: const CircleAvatar(child: Icon(Icons.person)),
                         title: Text(jugador.nombre),
                         subtitle: jugador.celular != null
                             ? Text(jugador.celular!)

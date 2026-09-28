@@ -6,19 +6,15 @@ class Jugador {
   final String? celular;
   final DateTime creadoEn;
 
-  Jugador({
-    this.id,
-    required this.nombre,
-    this.celular,
-    DateTime? creadoEn,
-  }) : creadoEn = creadoEn ?? DateTime.now();
+  Jugador({this.id, required this.nombre, this.celular, DateTime? creadoEn})
+    : creadoEn = creadoEn ?? DateTime.now();
 
   Map<String, dynamic> toMap() => {
-        'id': id,
-        'nombre': nombre,
-        'celular': celular,
-        'creado_en': creadoEn.toIso8601String(),
-      };
+    'id': id,
+    'nombre': nombre,
+    'celular': celular,
+    'creado_en': creadoEn.toIso8601String(),
+  };
 
   factory Jugador.fromMap(Map<String, dynamic> map) {
     return Jugador(

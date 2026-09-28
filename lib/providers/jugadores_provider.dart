@@ -28,6 +28,6 @@ class JugadoresNotifier extends StateNotifier<List<Jugador>> {
 
 final jugadoresProvider =
     StateNotifierProvider<JugadoresNotifier, List<Jugador>>((ref) {
-  final repo = ref.watch(jugadorRepositoryProvider);
-  return JugadoresNotifier(repo);
-});
+      final repo = ref.watch(jugadorRepositoryProvider);
+      return JugadoresNotifier(repo);
+    });

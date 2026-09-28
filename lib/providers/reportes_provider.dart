@@ -17,6 +17,6 @@ class MorososNotifier extends StateNotifier<List<Map<String, dynamic>>> {
 
 final morososProvider =
     StateNotifierProvider<MorososNotifier, List<Map<String, dynamic>>>((ref) {
-  final repo = ref.watch(asistenciaCobroRepositoryProvider);
-  return MorososNotifier(repo);
-});
+      final repo = ref.watch(asistenciaCobroRepositoryProvider);
+      return MorososNotifier(repo);
+    });

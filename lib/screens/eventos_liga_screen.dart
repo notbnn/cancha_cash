@@ -18,7 +18,9 @@ class EventosLigaScreen extends ConsumerWidget {
       '${hora.hour.toString().padLeft(2, '0')}:${hora.minute.toString().padLeft(2, '0')}';
 
   Future<void> _mostrarDialogoCrearEvento(
-      BuildContext context, WidgetRef ref) async {
+    BuildContext context,
+    WidgetRef ref,
+  ) async {
     DateTime fechaElegida = DateTime.now().add(const Duration(days: 7));
     TimeOfDay horaInicioElegida = const TimeOfDay(hour: 20, minute: 0);
     TimeOfDay horaFinElegida = const TimeOfDay(hour: 22, minute: 0);
@@ -48,7 +50,8 @@ class EventosLigaScreen extends ConsumerWidget {
                 ListTile(
                   contentPadding: EdgeInsets.zero,
                   title: Text(
-                      'Fecha: ${fechaElegida.day}/${fechaElegida.month}/${fechaElegida.year}'),
+                    'Fecha: ${fechaElegida.day}/${fechaElegida.month}/${fechaElegida.year}',
+                  ),
                   trailing: const Icon(Icons.calendar_today),
                   onTap: () async {
                     final elegida = await showDatePicker(
@@ -91,8 +94,9 @@ class EventosLigaScreen extends ConsumerWidget {
                 TextField(
                   controller: costoControlador,
                   keyboardType: TextInputType.number,
-                  decoration:
-                      const InputDecoration(labelText: 'Costo de la reserva'),
+                  decoration: const InputDecoration(
+                    labelText: 'Costo de la reserva',
+                  ),
                 ),
                 TextField(
                   controller: cuotaControlador,
@@ -107,7 +111,8 @@ class EventosLigaScreen extends ConsumerWidget {
                     contentPadding: EdgeInsets.zero,
                     value: usarCajaChica,
                     title: Text(
-                        'Usar caja chica (disponible: ${liga.saldoCajaChica.toStringAsFixed(0)})'),
+                      'Usar caja chica (disponible: ${liga.saldoCajaChica.toStringAsFixed(0)})',
+                    ),
                     onChanged: (valor) =>
                         setState(() => usarCajaChica = valor ?? false),
                   ),
@@ -149,8 +154,9 @@ class EventosLigaScreen extends ConsumerWidget {
       final titulo = tituloControlador.text.trim();
 
       final cuotaIngresada = double.tryParse(cuotaControlador.text);
-      final cuotaPorPersona =
-          (cuotaIngresada != null && cuotaIngresada > 0) ? cuotaIngresada : null;
+      final cuotaPorPersona = (cuotaIngresada != null && cuotaIngresada > 0)
+          ? cuotaIngresada
+          : null;
 
       final fechaConHora = DateTime(
         fechaElegida.year,
@@ -160,7 +166,9 @@ class EventosLigaScreen extends ConsumerWidget {
         horaInicioElegida.minute,
       );
 
-      await ref.read(eventosPorLigaProvider(liga.id!).notifier).crear(
+      await ref
+          .read(eventosPorLigaProvider(liga.id!).notifier)
+          .crear(
             titulo: titulo.isEmpty ? null : titulo,
             fechaExacta: fechaConHora,
             horaFin: _formatoHora(horaFinElegida),
@@ -174,17 +182,22 @@ class EventosLigaScreen extends ConsumerWidget {
   }
 
   Future<void> _confirmarEliminarEvento(
-      BuildContext context, WidgetRef ref, EventoFecha evento) async {
+    BuildContext context,
+    WidgetRef ref,
+    EventoFecha evento,
+  ) async {
     final confirmar = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('¿Eliminar partido?'),
         content: const Text(
-            'Se va a borrar este partido y sus inscripciones. Solo se puede si todavía no se registró ningún pago.'),
+          'Se va a borrar este partido y sus inscripciones. Solo se puede si todavía no se registró ningún pago.',
+        ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancelar')),
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar'),
+          ),
           FilledButton(
             style: FilledButton.styleFrom(backgroundColor: Colors.red),
             onPressed: () => Navigator.pop(context, true),
@@ -197,7 +210,9 @@ class EventosLigaScreen extends ConsumerWidget {
     if (confirmar != true) return;
 
     try {
-      await ref.read(eventosPorLigaProvider(liga.id!).notifier).eliminar(evento.id!);
+      await ref
+          .read(eventosPorLigaProvider(liga.id!).notifier)
+          .eliminar(evento.id!);
     } catch (e) {
       if (context.mounted) {
         showDialog(
@@ -225,15 +240,13 @@ class EventosLigaScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Hero(
           tag: 'liga-${liga.id}',
-          child: Material(
-            color: Colors.transparent,
-            child: Text(liga.nombre),
-          ),
+          child: Material(color: Colors.transparent, child: Text(liga.nombre)),
         ),
       ),
       body: eventos.isEmpty
           ? const Center(
-              child: Text('Todavía no hay partidos en esta categoría.'))
+              child: Text('Todavía no hay partidos en esta categoría.'),
+            )
           : ListView.builder(
               itemCount: eventos.length,
               itemBuilder: (context, index) {
@@ -244,19 +257,26 @@ class EventosLigaScreen extends ConsumerWidget {
                     ? ' · Cuota: ${evento.cuotaPorPersona!.toStringAsFixed(0)}'
                     : '';
                 return ListTile(
-                  title: Text(evento.titulo?.isNotEmpty == true
-                      ? evento.titulo!
-                      : '${evento.fechaExacta.day}/${evento.fechaExacta.month}/${evento.fechaExacta.year}'),
+                  title: Text(
+                    evento.titulo?.isNotEmpty == true
+                        ? evento.titulo!
+                        : '${evento.fechaExacta.day}/${evento.fechaExacta.month}/${evento.fechaExacta.year}',
+                  ),
                   subtitle: Text(
-                      '${evento.fechaExacta.day}/${evento.fechaExacta.month}/${evento.fechaExacta.year} · $horaTexto · Meta: ${evento.metaRecaudacion.toStringAsFixed(0)}$cuotaTexto · ${evento.estado}'),
+                    '${evento.fechaExacta.day}/${evento.fechaExacta.month}/${evento.fechaExacta.year} · $horaTexto · Meta: ${evento.metaRecaudacion.toStringAsFixed(0)}$cuotaTexto · ${evento.estado}',
+                  ),
                   trailing: evento.estado == EstadoEventoFecha.finalizado
                       ? const Icon(Icons.check_circle, color: Colors.green)
                       : const Icon(Icons.pending_outlined),
-                  onLongPress: () => _confirmarEliminarEvento(context, ref, evento),
+                  onLongPress: () =>
+                      _confirmarEliminarEvento(context, ref, evento),
                   onTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => EventoDetalleScreen(eventoId: evento.id!)),
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            EventoDetalleScreen(eventoId: evento.id!),
+                      ),
                     );
                   },
                 );

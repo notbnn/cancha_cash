@@ -34,8 +34,10 @@ class _TarjetaResumenCajaChica extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(etiqueta,
-              style: const TextStyle(fontSize: 15, color: Colors.black54)),
+          Text(
+            etiqueta,
+            style: const TextStyle(fontSize: 15, color: Colors.black54),
+          ),
           Text(
             valor,
             style: TextStyle(
@@ -72,29 +74,43 @@ class _TarjetaResumenCajaChica extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Caja chica',
-                      style: TextStyle(color: Colors.white70, fontSize: 14)),
+                  const Text(
+                    'Caja chica',
+                    style: TextStyle(color: Colors.white70, fontSize: 14),
+                  ),
                   const SizedBox(height: 4),
                   Text(
                     nombreLiga,
                     style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold),
+                      color: Colors.white,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 20),
-            _fila('Saldo actual', 'Bs ${saldoActual.toStringAsFixed(0)}',
-                color: const Color(0xFF2E7D32)),
-            _fila('Total ingresos', '+ Bs ${totalIngresos.toStringAsFixed(0)}',
-                color: Colors.green),
-            _fila('Total gastos', '- Bs ${totalGastos.toStringAsFixed(0)}',
-                color: Colors.red),
+            _fila(
+              'Saldo actual',
+              'Bs ${saldoActual.toStringAsFixed(0)}',
+              color: const Color(0xFF2E7D32),
+            ),
+            _fila(
+              'Total ingresos',
+              '+ Bs ${totalIngresos.toStringAsFixed(0)}',
+              color: Colors.green,
+            ),
+            _fila(
+              'Total gastos',
+              '- Bs ${totalGastos.toStringAsFixed(0)}',
+              color: Colors.red,
+            ),
             const Divider(height: 28),
-            const Text('Movimientos',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            const Text(
+              'Movimientos',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 8),
             ...movimientos.map((mov) {
               final monto = (mov['monto'] as num).toDouble();
@@ -111,7 +127,9 @@ class _TarjetaResumenCajaChica extends StatelessWidget {
                       child: Text(
                         '${mov['descripcion']} · $fechaTexto',
                         style: const TextStyle(
-                            fontSize: 13, color: Colors.black87),
+                          fontSize: 13,
+                          color: Colors.black87,
+                        ),
                       ),
                     ),
                     Text(
@@ -128,8 +146,10 @@ class _TarjetaResumenCajaChica extends StatelessWidget {
             }),
             const SizedBox(height: 16),
             const Center(
-              child: Text('Generado con Cancha Cash',
-                  style: TextStyle(fontSize: 11, color: Colors.black38)),
+              child: Text(
+                'Generado con Cancha Cash',
+                style: TextStyle(fontSize: 11, color: Colors.black38),
+              ),
             ),
           ],
         ),
@@ -144,7 +164,9 @@ class MovimientosCajaChicaScreen extends ConsumerWidget {
   const MovimientosCajaChicaScreen({super.key, required this.liga});
 
   Future<void> _mostrarDialogoRegistrarMovimiento(
-      BuildContext context, WidgetRef ref) async {
+    BuildContext context,
+    WidgetRef ref,
+  ) async {
     final descripcionControlador = TextEditingController();
     final montoControlador = TextEditingController();
     String tipo = 'gasto';
@@ -226,7 +248,8 @@ class MovimientosCajaChicaScreen extends ConsumerWidget {
     final fechaTexto =
         '${fecha.day.toString().padLeft(2, '0')}/${fecha.month.toString().padLeft(2, '0')}/${fecha.year}';
 
-    final texto = '${entrada ? '💰 Ingreso' : '💸 Gasto'} de caja chica · ${liga.nombre}\n'
+    final texto =
+        '${entrada ? '💰 Ingreso' : '💸 Gasto'} de caja chica · ${liga.nombre}\n'
         '${mov['descripcion']}\n'
         'Monto: ${entrada ? '+' : '-'}Bs ${monto.abs().toStringAsFixed(0)}\n'
         'Fecha: $fechaTexto';
@@ -240,11 +263,11 @@ class MovimientosCajaChicaScreen extends ConsumerWidget {
     String textoResumen,
   ) async {
     try {
-      final boundary = tarjetaKey.currentContext!.findRenderObject()
-          as RenderRepaintBoundary;
+      final boundary =
+          tarjetaKey.currentContext!.findRenderObject()
+              as RenderRepaintBoundary;
       final imagen = await boundary.toImage(pixelRatio: 3.0);
-      final byteData =
-          await imagen.toByteData(format: ui.ImageByteFormat.png);
+      final byteData = await imagen.toByteData(format: ui.ImageByteFormat.png);
       final bytes = byteData!.buffer.asUint8List();
 
       final tempDir = await getTemporaryDirectory();
@@ -254,9 +277,9 @@ class MovimientosCajaChicaScreen extends ConsumerWidget {
       await Share.shareXFiles([XFile(archivo.path)], text: textoResumen);
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('No se pudo compartir: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('No se pudo compartir: $e')));
       }
     }
   }
@@ -285,10 +308,10 @@ class MovimientosCajaChicaScreen extends ConsumerWidget {
             onPressed: movimientosParaTarjeta.isEmpty
                 ? null
                 : () => _compartirResumenComoImagen(
-                      context,
-                      tarjetaKey,
-                      'Caja chica de ${liga.nombre}: saldo actual Bs ${saldoActual.toStringAsFixed(0)}',
-                    ),
+                    context,
+                    tarjetaKey,
+                    'Caja chica de ${liga.nombre}: saldo actual Bs ${saldoActual.toStringAsFixed(0)}',
+                  ),
           ),
         ],
       ),

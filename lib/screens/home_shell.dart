@@ -18,11 +18,11 @@ class _HomeShellState extends ConsumerState<HomeShell> {
   int _indiceSeleccionado = 0;
 
   List<Widget> get _pantallas => [
-        HistorialCanchasScreen(),
-        PanelCobrosScreen(),
-        ListaAmigosScreen(),
-        ReportesScreen(),
-      ];
+    HistorialCanchasScreen(),
+    PanelCobrosScreen(),
+    ListaAmigosScreen(),
+    ReportesScreen(),
+  ];
 
   static const _titulos = [
     'Eventos programados',
@@ -44,8 +44,11 @@ class _HomeShellState extends ConsumerState<HomeShell> {
               themeMode == ThemeMode.dark ? Icons.dark_mode : Icons.light_mode,
             ),
             onPressed: () {
-              ref.read(themeModeProvider.notifier).state =
-                  themeMode == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark;
+              ref
+                  .read(themeModeProvider.notifier)
+                  .state = themeMode == ThemeMode.dark
+                  ? ThemeMode.light
+                  : ThemeMode.dark;
             },
           ),
         ],

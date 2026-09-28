@@ -33,8 +33,10 @@ class ReportesScreen extends ConsumerWidget {
       child: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          Text('Reportes por liga',
-              style: Theme.of(context).textTheme.titleMedium),
+          Text(
+            'Reportes por liga',
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
           const SizedBox(height: 8),
           if (ligas.isEmpty)
             const Padding(
@@ -42,26 +44,31 @@ class ReportesScreen extends ConsumerWidget {
               child: Text('Todavía no creaste ninguna categoría.'),
             )
           else
-            ...ligas.map((liga) => Card(
-                  child: ListTile(
-                    leading: Icon(Deporte.icono(liga.deporte)),
-                    title: Text(liga.nombre),
-                    subtitle: Text(
-                        'Caja chica: ${liga.saldoCajaChica.toStringAsFixed(0)}'),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ReportesLigaScreen(liga: liga),
-                        ),
-                      );
-                    },
+            ...ligas.map(
+              (liga) => Card(
+                child: ListTile(
+                  leading: Icon(Deporte.icono(liga.deporte)),
+                  title: Text(liga.nombre),
+                  subtitle: Text(
+                    'Caja chica: ${liga.saldoCajaChica.toStringAsFixed(0)}',
                   ),
-                )),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ReportesLigaScreen(liga: liga),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
           const SizedBox(height: 16),
-          Text('Jugadores morosos',
-              style: Theme.of(context).textTheme.titleMedium),
+          Text(
+            'Jugadores morosos',
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
           const SizedBox(height: 8),
           if (morosos.isEmpty)
             const Padding(
@@ -71,28 +78,37 @@ class ReportesScreen extends ConsumerWidget {
           else
             // 👈 NUEVO — antes era ...morosos.map(...) plano, ahora arma
             // un subtítulo por liga y debajo sus deudores.
-            ...morososPorLiga.entries.expand((entry) => [
-                  Padding(
-                    padding: const EdgeInsets.only(top: 4, bottom: 4),
-                    child: Text(
-                      entry.key,
-                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                          color: Theme.of(context).colorScheme.primary,
-                          fontWeight: FontWeight.bold),
+            ...morososPorLiga.entries.expand(
+              (entry) => [
+                Padding(
+                  padding: const EdgeInsets.only(top: 4, bottom: 4),
+                  child: Text(
+                    entry.key,
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      color: Theme.of(context).colorScheme.primary,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                  ...entry.value.map((fila) => Card(
-                        child: ListTile(
-                          leading: const Icon(Icons.warning_amber,
-                              color: Colors.orange),
-                          title: Text(fila['nombre'] as String),
-                          subtitle: Text(
-                              '${fila['partidos_debe']} partido(s) pendiente(s)'),
-                          trailing: Text(
-                              (fila['deuda_total'] as num).toStringAsFixed(0)),
-                        ),
-                      )),
-                ]),
+                ),
+                ...entry.value.map(
+                  (fila) => Card(
+                    child: ListTile(
+                      leading: const Icon(
+                        Icons.warning_amber,
+                        color: Colors.orange,
+                      ),
+                      title: Text(fila['nombre'] as String),
+                      subtitle: Text(
+                        '${fila['partidos_debe']} partido(s) pendiente(s)',
+                      ),
+                      trailing: Text(
+                        (fila['deuda_total'] as num).toStringAsFixed(0),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
         ],
       ),
     );

@@ -14,12 +14,12 @@ class LigaCategoria {
   }) : creadoEn = creadoEn ?? DateTime.now();
 
   Map<String, dynamic> toMap() => {
-        'id': id,
-        'nombre': nombre,
-        'deporte': deporte,
-        'saldo_caja_chica': saldoCajaChica,
-        'creado_en': creadoEn.toIso8601String(),
-      };
+    'id': id,
+    'nombre': nombre,
+    'deporte': deporte,
+    'saldo_caja_chica': saldoCajaChica,
+    'creado_en': creadoEn.toIso8601String(),
+  };
 
   factory LigaCategoria.fromMap(Map<String, dynamic> map) {
     return LigaCategoria(
@@ -32,10 +32,10 @@ class LigaCategoria {
   }
 
   LigaCategoria copyWith({double? saldoCajaChica}) => LigaCategoria(
-        id: id,
-        nombre: nombre,
-        deporte: deporte,
-        saldoCajaChica: saldoCajaChica ?? this.saldoCajaChica,
-        creadoEn: creadoEn,
-      );
+    id: id,
+    nombre: nombre,
+    deporte: deporte,
+    saldoCajaChica: saldoCajaChica ?? this.saldoCajaChica,
+    creadoEn: creadoEn,
+  );
 }

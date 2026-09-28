@@ -20,17 +20,23 @@ class PanelCobrosScreen extends ConsumerWidget {
       itemBuilder: (context, index) {
         final fila = pendientes[index];
         final fecha = DateTime.parse(fila['fecha_exacta'] as String);
-                return ListTile(
+        return ListTile(
           leading: const Icon(Icons.sports_soccer),
-          title: Text((fila['titulo'] as String?)?.isNotEmpty == true
-              ? '${fila['nombre_liga']} — ${fila['titulo']}'
-              : '${fila['nombre_liga']} — ${fecha.day}/${fecha.month}/${fecha.year}'),
+          title: Text(
+            (fila['titulo'] as String?)?.isNotEmpty == true
+                ? '${fila['nombre_liga']} — ${fila['titulo']}'
+                : '${fila['nombre_liga']} — ${fecha.day}/${fecha.month}/${fecha.year}',
+          ),
           subtitle: Text(
-              '${fecha.day}/${fecha.month}/${fecha.year} · Meta: ${(fila['meta_recaudacion'] as num).toStringAsFixed(0)}'),
+            '${fecha.day}/${fecha.month}/${fecha.year} · Meta: ${(fila['meta_recaudacion'] as num).toStringAsFixed(0)}',
+          ),
           onTap: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => EventoDetalleScreen(eventoId: fila['id'] as int)),
+              MaterialPageRoute(
+                builder: (context) =>
+                    EventoDetalleScreen(eventoId: fila['id'] as int),
+              ),
             );
           },
         );

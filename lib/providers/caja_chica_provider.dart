@@ -21,8 +21,10 @@ class CajaChicaResumen {
 
 /// Carga el evento (para saber su meta_recaudacion). Es un FutureProvider
 /// porque leer de SQLite es asíncrono.
-final eventoFechaProvider =
-    FutureProvider.family<EventoFecha?, int>((ref, eventoId) {
+final eventoFechaProvider = FutureProvider.family<EventoFecha?, int>((
+  ref,
+  eventoId,
+) {
   final repo = ref.watch(eventoFechaRepositoryProvider);
   return repo.obtenerPorId(eventoId);
 });
@@ -30,13 +32,18 @@ final eventoFechaProvider =
 /// El cálculo en tiempo real: cada vez que `asistenciasProvider` cambia
 /// (alguien marcó un pago), esto se recalcula solo — no hay que llamarlo
 /// a mano desde ningún lado.
-final cajaChicaProvider = Provider.family<CajaChicaResumen, int>((ref, eventoId) {
+final cajaChicaProvider = Provider.family<CajaChicaResumen, int>((
+  ref,
+  eventoId,
+) {
   final asistencias = ref.watch(asistenciasProvider(eventoId));
 
   final recaudado = asistencias
       .where((fila) => fila['estado'] == EstadoAsistencia.pagado)
       .fold<double>(
-          0, (suma, fila) => suma + (fila['monto_pagado'] as num).toDouble());
+        0,
+        (suma, fila) => suma + (fila['monto_pagado'] as num).toDouble(),
+      );
 
   final eventoAsync = ref.watch(eventoFechaProvider(eventoId));
   final meta = eventoAsync.maybeWhen(

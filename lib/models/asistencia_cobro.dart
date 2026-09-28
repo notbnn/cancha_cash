@@ -26,15 +26,15 @@ class AsistenciaCobro {
   bool get pagado => estado == EstadoAsistencia.pagado;
 
   Map<String, dynamic> toMap() => {
-        'id': id,
-        'uuid': uuid,
-        'evento_id': eventoId,
-        'jugador_id': jugadorId,
-        'monto_pagado': montoPagado,
-        'metodo_pago': metodoPago,
-        'estado': estado,
-        'creado_en': creadoEn.toIso8601String(),
-      };
+    'id': id,
+    'uuid': uuid,
+    'evento_id': eventoId,
+    'jugador_id': jugadorId,
+    'monto_pagado': montoPagado,
+    'metodo_pago': metodoPago,
+    'estado': estado,
+    'creado_en': creadoEn.toIso8601String(),
+  };
 
   factory AsistenciaCobro.fromMap(Map<String, dynamic> map) {
     return AsistenciaCobro(

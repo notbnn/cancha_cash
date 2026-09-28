@@ -17,11 +17,14 @@ class JugadoresPorEventoNotifier
   }
 }
 
-final jugadoresPorEventoProvider = StateNotifierProvider<
-    JugadoresPorEventoNotifier, List<Map<String, dynamic>>>((ref) {
-  final repo = ref.watch(jugadorRepositoryProvider);
-  return JugadoresPorEventoNotifier(repo);
-});
+final jugadoresPorEventoProvider =
+    StateNotifierProvider<
+      JugadoresPorEventoNotifier,
+      List<Map<String, dynamic>>
+    >((ref) {
+      final repo = ref.watch(jugadorRepositoryProvider);
+      return JugadoresPorEventoNotifier(repo);
+    });
 
 class JugadoresSinPartidosNotifier extends StateNotifier<List<Jugador>> {
   final JugadorRepository _repo;
@@ -35,8 +38,8 @@ class JugadoresSinPartidosNotifier extends StateNotifier<List<Jugador>> {
   }
 }
 
-final jugadoresSinPartidosProvider = StateNotifierProvider<
-    JugadoresSinPartidosNotifier, List<Jugador>>((ref) {
-  final repo = ref.watch(jugadorRepositoryProvider);
-  return JugadoresSinPartidosNotifier(repo);
-});
+final jugadoresSinPartidosProvider =
+    StateNotifierProvider<JugadoresSinPartidosNotifier, List<Jugador>>((ref) {
+      final repo = ref.watch(jugadorRepositoryProvider);
+      return JugadoresSinPartidosNotifier(repo);
+    });

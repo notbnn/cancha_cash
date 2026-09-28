@@ -70,13 +70,17 @@ class EventosNotifier extends StateNotifier<List<EventoFecha>> {
     await cargar();
     await _ref.read(eventosPendientesProvider.notifier).cargar();
     await _ref.read(morososProvider.notifier).cargar();
-    await _ref.read(ligasProvider.notifier).cargar(); // por si se devolvió el descuento
+    await _ref
+        .read(ligasProvider.notifier)
+        .cargar(); // por si se devolvió el descuento
   }
 }
 
 final eventosPorLigaProvider =
-    StateNotifierProvider.family<EventosNotifier, List<EventoFecha>, int>(
-        (ref, ligaId) {
-  final repo = ref.watch(eventoFechaRepositoryProvider);
-  return EventosNotifier(repo, ref, ligaId);
-});
+    StateNotifierProvider.family<EventosNotifier, List<EventoFecha>, int>((
+      ref,
+      ligaId,
+    ) {
+      final repo = ref.watch(eventoFechaRepositoryProvider);
+      return EventosNotifier(repo, ref, ligaId);
+    });

@@ -73,8 +73,11 @@ class EventoFechaRepository {
 
   Future<EventoFecha?> obtenerPorId(int id) async {
     final db = await _db;
-    final filas =
-        await db.query('Eventos_Fechas', where: 'id = ?', whereArgs: [id]);
+    final filas = await db.query(
+      'Eventos_Fechas',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
     if (filas.isEmpty) return null;
     return EventoFecha.fromMap(filas.first);
   }
@@ -102,8 +105,12 @@ class EventoFechaRepository {
           [excedente, ligaId],
         );
 
-        final filasEvento = await txn.query('Eventos_Fechas',
-            columns: ['titulo'], where: 'id = ?', whereArgs: [eventoId]);
+        final filasEvento = await txn.query(
+          'Eventos_Fechas',
+          columns: ['titulo'],
+          where: 'id = ?',
+          whereArgs: [eventoId],
+        );
         final titulo = filasEvento.isNotEmpty
             ? filasEvento.first['titulo'] as String?
             : null;
@@ -129,11 +136,7 @@ class EventoFechaRepository {
     final db = await _db;
     await db.update(
       'Eventos_Fechas',
-      {
-        'uuid': uuid,
-        'link_publico': linkPublico,
-        'admin_token': adminToken,
-      },
+      {'uuid': uuid, 'link_publico': linkPublico, 'admin_token': adminToken},
       where: 'id = ?',
       whereArgs: [id],
     );
@@ -143,26 +146,33 @@ class EventoFechaRepository {
     final db = await _db;
 
     await db.transaction((txn) async {
-      final pagos = await txn.rawQuery('''
+      final pagos = await txn.rawQuery(
+        '''
         SELECT COUNT(*) as total FROM Asistencias_Cobros
         WHERE evento_id = ? AND estado = ?
-      ''', [id, EstadoAsistencia.pagado]);
+      ''',
+        [id, EstadoAsistencia.pagado],
+      );
       final tienePagos = (pagos.first['total'] as int) > 0;
 
       if (tienePagos) {
         throw Exception(
-            'Este partido ya tiene pagos registrados. Cerralo en vez de borrarlo, así lo cobrado pasa a la caja chica.');
+          'Este partido ya tiene pagos registrados. Cerralo en vez de borrarlo, así lo cobrado pasa a la caja chica.',
+        );
       }
 
-      final filas =
-          await txn.query('Eventos_Fechas', where: 'id = ?', whereArgs: [id]);
+      final filas = await txn.query(
+        'Eventos_Fechas',
+        where: 'id = ?',
+        whereArgs: [id],
+      );
       if (filas.isEmpty) return;
 
       final evento = filas.first;
       final ligaId = evento['liga_id'] as int;
       final titulo = evento['titulo'] as String?;
-      final descuentoAplicado =
-          (evento['descuento_caja_chica_aplicado'] as num).toDouble();
+      final descuentoAplicado = (evento['descuento_caja_chica_aplicado'] as num)
+          .toDouble();
 
       await txn.delete('Eventos_Fechas', where: 'id = ?', whereArgs: [id]);
 
@@ -186,14 +196,17 @@ class EventoFechaRepository {
 
   Future<List<Map<String, dynamic>>> obtenerPendientesConLiga() async {
     final db = await _db;
-    return db.rawQuery('''
+    return db.rawQuery(
+      '''
       SELECT ef.*, lc.nombre AS nombre_liga,
         (SELECT COUNT(*) FROM Asistencias_Cobros WHERE evento_id = ef.id) AS confirmados
       FROM Eventos_Fechas ef
       JOIN Ligas_Categorias lc ON lc.id = ef.liga_id
       WHERE ef.estado = ?
       ORDER BY ef.fecha_exacta ASC
-    ''', [EstadoEventoFecha.pendiente]);
+    ''',
+      [EstadoEventoFecha.pendiente],
+    );
   }
 
   Future<void> actualizarQr(int id, String qrImagenPath) async {

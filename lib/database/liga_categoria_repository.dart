@@ -22,8 +22,11 @@ class LigaCategoriaRepository {
 
   Future<LigaCategoria?> obtenerPorId(int id) async {
     final db = await _db;
-    final filas =
-        await db.query('Ligas_Categorias', where: 'id = ?', whereArgs: [id]);
+    final filas = await db.query(
+      'Ligas_Categorias',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
     if (filas.isEmpty) return null;
     return LigaCategoria.fromMap(filas.first);
   }
@@ -44,7 +47,12 @@ class LigaCategoriaRepository {
     final db = await _db;
     await db.delete('Ligas_Categorias', where: 'id = ?', whereArgs: [id]);
   }
-  Future<void> actualizar(int id, {required String nombre, String? deporte}) async {
+
+  Future<void> actualizar(
+    int id, {
+    required String nombre,
+    String? deporte,
+  }) async {
     final db = await _db;
     await db.update(
       'Ligas_Categorias',

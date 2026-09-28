@@ -38,8 +38,9 @@ class LigasNotifier extends StateNotifier<List<LigaCategoria>> {
   }
 }
 
-final ligasProvider =
-    StateNotifierProvider<LigasNotifier, List<LigaCategoria>>((ref) {
-  final repo = ref.watch(ligaCategoriaRepositoryProvider);
-  return LigasNotifier(repo, ref);
-});
+final ligasProvider = StateNotifierProvider<LigasNotifier, List<LigaCategoria>>(
+  (ref) {
+    final repo = ref.watch(ligaCategoriaRepositoryProvider);
+    return LigasNotifier(repo, ref);
+  },
+);

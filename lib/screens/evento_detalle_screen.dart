@@ -47,18 +47,25 @@ class EventoDetalleScreen extends ConsumerWidget {
     );
     if (origen == null) return;
 
-    final archivo = await ImagePicker().pickImage(source: origen, imageQuality: 85);
+    final archivo = await ImagePicker().pickImage(
+      source: origen,
+      imageQuality: 85,
+    );
     if (archivo == null) return;
 
     final docsDir = await getApplicationDocumentsDirectory();
     final destino = p.join(docsDir.path, 'qr_evento_$eventoId.jpg');
     await File(archivo.path).copy(destino);
 
-    await ref.read(eventoFechaRepositoryProvider).actualizarQr(eventoId, destino);
+    await ref
+        .read(eventoFechaRepositoryProvider)
+        .actualizarQr(eventoId, destino);
     ref.invalidate(eventoFechaProvider(eventoId));
 
     try {
-      final evento = await ref.read(eventoFechaRepositoryProvider).obtenerPorId(eventoId);
+      final evento = await ref
+          .read(eventoFechaRepositoryProvider)
+          .obtenerPorId(eventoId);
       if (evento?.uuid != null && evento?.adminToken != null) {
         final bytes = await File(archivo.path).readAsBytes();
         final mime = _mimeDesdeRuta(archivo.path);
@@ -116,7 +123,9 @@ class EventoDetalleScreen extends ConsumerWidget {
   }
 
   Future<void> _mostrarDialogoAgregarJugador(
-      BuildContext context, WidgetRef ref) async {
+    BuildContext context,
+    WidgetRef ref,
+  ) async {
     final controlador = TextEditingController();
 
     final nombre = await showDialog<String>(
@@ -130,22 +139,29 @@ class EventoDetalleScreen extends ConsumerWidget {
         ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancelar')),
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancelar'),
+          ),
           FilledButton(
-              onPressed: () => Navigator.pop(context, controlador.text.trim()),
-              child: const Text('Añadir')),
+            onPressed: () => Navigator.pop(context, controlador.text.trim()),
+            child: const Text('Añadir'),
+          ),
         ],
       ),
     );
 
     if (nombre != null && nombre.isNotEmpty) {
-      await ref.read(asistenciasProvider(eventoId).notifier).agregarJugador(nombre);
+      await ref
+          .read(asistenciasProvider(eventoId).notifier)
+          .agregarJugador(nombre);
     }
   }
 
   Future<void> _mostrarDialogoEditarTitulo(
-      BuildContext context, WidgetRef ref, EventoFecha? evento) async {
+    BuildContext context,
+    WidgetRef ref,
+    EventoFecha? evento,
+  ) async {
     if (evento == null) return;
     final controlador = TextEditingController(text: evento.titulo ?? '');
 
@@ -160,11 +176,13 @@ class EventoDetalleScreen extends ConsumerWidget {
         ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancelar')),
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancelar'),
+          ),
           FilledButton(
-              onPressed: () => Navigator.pop(context, controlador.text.trim()),
-              child: const Text('Guardar')),
+            onPressed: () => Navigator.pop(context, controlador.text.trim()),
+            child: const Text('Guardar'),
+          ),
         ],
       ),
     );
@@ -178,7 +196,10 @@ class EventoDetalleScreen extends ConsumerWidget {
   }
 
   Future<void> _mostrarDialogoEditarCuota(
-      BuildContext context, WidgetRef ref, EventoFecha? evento) async {
+    BuildContext context,
+    WidgetRef ref,
+    EventoFecha? evento,
+  ) async {
     if (evento == null) return;
     final controlador = TextEditingController(
       text: evento.cuotaPorPersona != null
@@ -200,11 +221,13 @@ class EventoDetalleScreen extends ConsumerWidget {
         ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancelar')),
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancelar'),
+          ),
           FilledButton(
-              onPressed: () => Navigator.pop(context, controlador.text.trim()),
-              child: const Text('Guardar')),
+            onPressed: () => Navigator.pop(context, controlador.text.trim()),
+            child: const Text('Guardar'),
+          ),
         ],
       ),
     );
@@ -215,7 +238,7 @@ class EventoDetalleScreen extends ConsumerWidget {
           .read(eventoFechaRepositoryProvider)
           .actualizarCuota(eventoId, nuevaCuota);
       ref.invalidate(eventoFechaProvider(eventoId));
-      await ref.read(morososProvider.notifier).cargar(); 
+      await ref.read(morososProvider.notifier).cargar();
     }
   }
 
@@ -226,8 +249,9 @@ class EventoDetalleScreen extends ConsumerWidget {
     double? cuotaPorPersona,
   }) async {
     final montoPagadoActual = (fila['monto_pagado'] as num).toDouble();
-    final montoSugerido =
-        montoPagadoActual > 0 ? montoPagadoActual : (cuotaPorPersona ?? 0);
+    final montoSugerido = montoPagadoActual > 0
+        ? montoPagadoActual
+        : (cuotaPorPersona ?? 0);
     final montoControlador = TextEditingController(
       text: montoSugerido > 0 ? montoSugerido.toStringAsFixed(0) : '',
     );
@@ -251,7 +275,9 @@ class EventoDetalleScreen extends ConsumerWidget {
                 segments: const [
                   ButtonSegment(value: MetodoPago.qr, label: Text('QR')),
                   ButtonSegment(
-                      value: MetodoPago.efectivo, label: Text('Efectivo')),
+                    value: MetodoPago.efectivo,
+                    label: Text('Efectivo'),
+                  ),
                 ],
                 selected: {metodo},
                 onSelectionChanged: (nuevo) =>
@@ -261,11 +287,13 @@ class EventoDetalleScreen extends ConsumerWidget {
           ),
           actions: [
             TextButton(
-                onPressed: () => Navigator.pop(context, false),
-                child: const Text('Cancelar')),
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancelar'),
+            ),
             FilledButton(
-                onPressed: () => Navigator.pop(context, true),
-                child: const Text('Confirmar')),
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Confirmar'),
+            ),
           ],
         ),
       ),
@@ -273,16 +301,16 @@ class EventoDetalleScreen extends ConsumerWidget {
 
     final monto = double.tryParse(montoControlador.text);
     if (confirmado == true && monto != null) {
-      await ref.read(asistenciasProvider(eventoId).notifier).marcarPagado(
-            fila['id'] as int,
-            monto: monto,
-            metodo: metodo,
-          );
+      await ref
+          .read(asistenciasProvider(eventoId).notifier)
+          .marcarPagado(fila['id'] as int, monto: monto, metodo: metodo);
     }
   }
 
   Future<bool> _confirmarEliminarAsistencia(
-      BuildContext context, String nombre) async {
+    BuildContext context,
+    String nombre,
+  ) async {
     final confirmado = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -290,12 +318,14 @@ class EventoDetalleScreen extends ConsumerWidget {
         content: Text('Se va a borrar a "$nombre" de este partido.'),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancelar')),
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar'),
+          ),
           FilledButton(
-              onPressed: () => Navigator.pop(context, true),
-              style: FilledButton.styleFrom(backgroundColor: Colors.red),
-              child: const Text('Borrar')),
+            onPressed: () => Navigator.pop(context, true),
+            style: FilledButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('Borrar'),
+          ),
         ],
       ),
     );
@@ -307,7 +337,8 @@ class EventoDetalleScreen extends ConsumerWidget {
     if (link == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-            content: Text('Este partido todavía no tiene link generado.')),
+          content: Text('Este partido todavía no tiene link generado.'),
+        ),
       );
       return;
     }
@@ -324,10 +355,8 @@ class EventoDetalleScreen extends ConsumerWidget {
           tween: Tween(begin: 0, end: 1),
           duration: const Duration(milliseconds: 400),
           curve: Curves.elasticOut,
-          builder: (context, valor, child) => Transform.scale(
-            scale: valor,
-            child: child,
-          ),
+          builder: (context, valor, child) =>
+              Transform.scale(scale: valor, child: child),
           child: Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
@@ -345,7 +374,9 @@ class EventoDetalleScreen extends ConsumerWidget {
 
   Future<void> _cerrarPartido(BuildContext context, WidgetRef ref) async {
     final resumen = ref.read(cajaChicaProvider(eventoId));
-    final evento = await ref.read(eventoFechaRepositoryProvider).obtenerPorId(eventoId);
+    final evento = await ref
+        .read(eventoFechaRepositoryProvider)
+        .obtenerPorId(eventoId);
     if (evento == null) return;
 
     final confirmar = await showDialog<bool>(
@@ -359,17 +390,21 @@ class EventoDetalleScreen extends ConsumerWidget {
         ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancelar')),
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar'),
+          ),
           FilledButton(
-              onPressed: () => Navigator.pop(context, true),
-              child: const Text('Cerrar')),
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Cerrar'),
+          ),
         ],
       ),
     );
 
     if (confirmar == true) {
-      await ref.read(eventoFechaRepositoryProvider).finalizarConExcedente(
+      await ref
+          .read(eventoFechaRepositoryProvider)
+          .finalizarConExcedente(
             eventoId: eventoId,
             ligaId: evento.ligaId,
             excedente: resumen.excedente,
@@ -385,7 +420,8 @@ class EventoDetalleScreen extends ConsumerWidget {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => ReporteEventoScreen(eventoId: eventoId))
+            builder: (context) => ReporteEventoScreen(eventoId: eventoId),
+          ),
         );
       }
     }
@@ -395,13 +431,15 @@ class EventoDetalleScreen extends ConsumerWidget {
     try {
       await ref.read(asistenciasProvider(eventoId).notifier).sincronizar();
       if (context.mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Sincronizado')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Sincronizado')));
       }
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Error al sincronizar: $e')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error al sincronizar: $e')));
       }
     }
   }
@@ -410,8 +448,10 @@ class EventoDetalleScreen extends ConsumerWidget {
     return Column(
       children: [
         Text(etiqueta, style: const TextStyle(fontSize: 12)),
-        Text(valor.toStringAsFixed(0),
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        Text(
+          valor.toStringAsFixed(0),
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
       ],
     );
   }
@@ -449,9 +489,9 @@ class EventoDetalleScreen extends ConsumerWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (
-                        (context) => ReporteEventoScreen(eventoId: eventoId)),
-                    )
+                      builder: ((context) =>
+                          ReporteEventoScreen(eventoId: eventoId)),
+                    ),
                   );
               }
             },
@@ -503,7 +543,10 @@ class EventoDetalleScreen extends ConsumerWidget {
                   SizedBox(width: 6),
                   Text(
                     'Partido cerrado',
-                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ],
               ),
@@ -526,7 +569,9 @@ class EventoDetalleScreen extends ConsumerWidget {
                       _dato('Meta', resumen.meta),
                       _dato(
                         resumen.excedente > 0 ? 'Excedente' : 'Falta',
-                        resumen.excedente > 0 ? resumen.excedente : resumen.deficit,
+                        resumen.excedente > 0
+                            ? resumen.excedente
+                            : resumen.deficit,
                       ),
                     ],
                   ),
@@ -535,7 +580,10 @@ class EventoDetalleScreen extends ConsumerWidget {
                       padding: const EdgeInsets.only(top: 8),
                       child: Text(
                         'Cuota por persona: ${cuotaPorPersona.toStringAsFixed(0)}',
-                        style: const TextStyle(fontSize: 12, color: Colors.grey),
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey,
+                        ),
                       ),
                     ),
                 ],
@@ -552,7 +600,8 @@ class EventoDetalleScreen extends ConsumerWidget {
                         SizedBox(height: 160),
                         Center(
                           child: Text(
-                              'Nadie registrado todavía. Usa el botón + para agregar.'),
+                            'Nadie registrado todavía. Usa el botón + para agregar.',
+                          ),
                         ),
                       ],
                     )
@@ -562,20 +611,26 @@ class EventoDetalleScreen extends ConsumerWidget {
                       itemCount: asistencias.length,
                       itemBuilder: (context, index) {
                         final fila = asistencias[index];
-                        final pagado = fila['estado'] == EstadoAsistencia.pagado;
+                        final pagado =
+                            fila['estado'] == EstadoAsistencia.pagado;
                         return Dismissible(
                           key: ValueKey(fila['id']),
                           direction: cerrado
-                            ? DismissDirection.none
-                            : DismissDirection.endToStart,
+                              ? DismissDirection.none
+                              : DismissDirection.endToStart,
                           background: Container(
                             color: Colors.red,
                             alignment: Alignment.centerRight,
                             padding: const EdgeInsets.symmetric(horizontal: 20),
-                            child: const Icon(Icons.delete, color: Colors.white),
+                            child: const Icon(
+                              Icons.delete,
+                              color: Colors.white,
+                            ),
                           ),
                           confirmDismiss: (_) => _confirmarEliminarAsistencia(
-                              context, fila['nombre_jugador'] as String),
+                            context,
+                            fila['nombre_jugador'] as String,
+                          ),
                           onDismissed: (_) => ref
                               .read(asistenciasProvider(eventoId).notifier)
                               .eliminar(fila['id'] as int),
@@ -587,23 +642,31 @@ class EventoDetalleScreen extends ConsumerWidget {
                             child: CheckboxListTile(
                               value: pagado,
                               title: Text(fila['nombre_jugador'] as String),
-                              subtitle: Text(pagado
-                                  ? '${fila['metodo_pago']} · ${fila['monto_pagado']}'
-                                  : 'Debe'),
+                              subtitle: Text(
+                                pagado
+                                    ? '${fila['metodo_pago']} · ${fila['monto_pagado']}'
+                                    : 'Debe',
+                              ),
                               onChanged: cerrado
-                                ? null
-                                : (marcado) async {
-                                if (marcado == true) {
-                                  await _mostrarDialogoPago(
-                                    context, ref, fila,
-                                    cuotaPorPersona: cuotaPorPersona,
-                                  );
-                                } else {
-                                  await ref
-                                      .read(asistenciasProvider(eventoId).notifier)
-                                      .desmarcar(fila['id'] as int);
-                                }
-                              },
+                                  ? null
+                                  : (marcado) async {
+                                      if (marcado == true) {
+                                        await _mostrarDialogoPago(
+                                          context,
+                                          ref,
+                                          fila,
+                                          cuotaPorPersona: cuotaPorPersona,
+                                        );
+                                      } else {
+                                        await ref
+                                            .read(
+                                              asistenciasProvider(
+                                                eventoId,
+                                              ).notifier,
+                                            )
+                                            .desmarcar(fila['id'] as int);
+                                      }
+                                    },
                             ),
                           ),
                         );
@@ -614,12 +677,12 @@ class EventoDetalleScreen extends ConsumerWidget {
         ],
       ),
       floatingActionButton: cerrado
-        ? null
-        : FloatingActionButton(
-        onPressed: () => _mostrarDialogoAgregarJugador(context, ref),
-        tooltip: 'Añadir Jugador en Cancha',
-        child: const Icon(Icons.person_add),
-      ),
+          ? null
+          : FloatingActionButton(
+              onPressed: () => _mostrarDialogoAgregarJugador(context, ref),
+              tooltip: 'Añadir Jugador en Cancha',
+              child: const Icon(Icons.person_add),
+            ),
     );
   }
 }
