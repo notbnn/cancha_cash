@@ -28,7 +28,7 @@ jobs:
         run: flutter pub get
 
       - name: Verificar formateo
-        run: flutter format --set-exit-if-changed .
+        run: dart format --output=none --set-exit-if-changed .
 
       - name: Análisis estático (Linter)
         run: flutter analyze
