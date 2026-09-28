@@ -1,0 +1,37 @@
+name: Flutter CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  quality-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configurar Java (requerido para compilar Android)
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Configurar Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Instalar dependencias
+        run: flutter pub get
+
+      - name: Verificar formateo
+        run: flutter format --set-exit-if-changed .
+
+      - name: Análisis estático (Linter)
+        run: flutter analyze
+
+      - name: Compilar APK de debug (chequeo de que compila de verdad)
+        run: flutter build apk --debug
