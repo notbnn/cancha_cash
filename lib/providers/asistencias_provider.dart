@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../database/asistencia_cobro_repository.dart';
 import '../database/evento_fecha_repository.dart';
 import '../database/jugador_repository.dart';
+import '../models/constantes.dart';
 import '../services/backend_api.dart';
 import 'eventos_pendientes_provider.dart';
 import 'ligas_provider.dart';
@@ -108,6 +109,9 @@ class AsistenciasNotifier extends StateNotifier<List<Map<String, dynamic>>> {
         eventoId: eventoId,
         jugadorId: jugadorId,
         uuid: uuid,
+        metodoPagoSugerido: MetodoPago.desdeBackend(
+          confirmacion['metodoPago'] as String?,
+        ),
       );
     }
 

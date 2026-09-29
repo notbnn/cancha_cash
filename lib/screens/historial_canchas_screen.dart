@@ -250,7 +250,7 @@ class HistorialCanchasScreen extends ConsumerWidget {
       await Share.shareXFiles(
         [XFile(destino.path)],
         text:
-            'Backup de tus ligas ($nombreArchivo) — guardalo en un lugar seguro (Drive, WhatsApp a vos mismo, etc.)',
+            'Backup de tus ligas ($nombreArchivo) — guárdalo en un lugar seguro (Drive, WhatsApp a ti mismo, etc.)',
       );
     } catch (e) {
       if (context.mounted) {
@@ -361,7 +361,7 @@ class HistorialCanchasScreen extends ConsumerWidget {
             child: ligas.isEmpty
                 ? const Center(
                     child: Text(
-                      'Todavía no creaste ninguna categoría.\nTocá el botón + para empezar.',
+                      'Todavía no creaste ninguna categoría.\nToca el botón + para empezar.',
                       textAlign: TextAlign.center,
                     ),
                   )

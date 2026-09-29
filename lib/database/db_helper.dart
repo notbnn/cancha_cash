@@ -26,7 +26,7 @@ class DBHelper {
 
     return openDatabase(
       path,
-      version: 8,
+      version: 10,
       onConfigure: _onConfigure,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
@@ -65,6 +65,7 @@ class DBHelper {
         link_publico TEXT,
         admin_token TEXT,
         titulo TEXT,
+        ubicacion_url TEXT,
         creado_en TEXT NOT NULL,
         FOREIGN KEY (liga_id) REFERENCES Ligas_Categorias (id) ON DELETE CASCADE
       )
@@ -87,6 +88,7 @@ class DBHelper {
         jugador_id INTEGER NOT NULL,
         monto_pagado REAL NOT NULL DEFAULT 0,
         metodo_pago TEXT,
+        metodo_pago_sugerido TEXT,
         estado TEXT NOT NULL DEFAULT 'Debe',
         eliminado_manualmente INTEGER NOT NULL DEFAULT 0,
         creado_en TEXT NOT NULL,
@@ -160,6 +162,16 @@ class DBHelper {
     if (oldVersion < 8) {
       await db.execute(
         'ALTER TABLE Asistencias_Cobros ADD COLUMN eliminado_manualmente INTEGER NOT NULL DEFAULT 0',
+      );
+    }
+    if (oldVersion < 9) {
+      await db.execute(
+        'ALTER TABLE Asistencias_Cobros ADD COLUMN metodo_pago_sugerido TEXT',
+      );
+    }
+    if (oldVersion < 10) {
+      await db.execute(
+        'ALTER TABLE Eventos_Fechas ADD COLUMN ubicacion_url TEXT',
       );
     }
   }

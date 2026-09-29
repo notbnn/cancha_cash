@@ -15,6 +15,7 @@ class EventoFecha {
   final double excedenteGenerado;
   final String estado;
   final String? qrImagenPath;
+  final String? ubicacionUrl;
   final String? linkPublico;
   final String? adminToken;
   final DateTime creadoEn;
@@ -33,6 +34,7 @@ class EventoFecha {
     this.excedenteGenerado = 0,
     this.estado = EstadoEventoFecha.pendiente,
     this.qrImagenPath,
+    this.ubicacionUrl,
     this.linkPublico,
     this.adminToken,
     DateTime? creadoEn,
@@ -52,6 +54,7 @@ class EventoFecha {
     'excedente_generado': excedenteGenerado,
     'estado': estado,
     'qr_imagen_path': qrImagenPath,
+    'ubicacion_url': ubicacionUrl,
     'link_publico': linkPublico,
     'admin_token': adminToken,
     'creado_en': creadoEn.toIso8601String(),
@@ -74,6 +77,7 @@ class EventoFecha {
       excedenteGenerado: (map['excedente_generado'] as num).toDouble(),
       estado: map['estado'] as String,
       qrImagenPath: map['qr_imagen_path'] as String?,
+      ubicacionUrl: map['ubicacion_url'] as String?,
       linkPublico: map['link_publico'] as String?,
       adminToken: map['admin_token'] as String?,
       creadoEn: DateTime.parse(map['creado_en'] as String),
@@ -85,6 +89,7 @@ class EventoFecha {
     String? estado,
     double? excedenteGenerado,
     String? qrImagenPath,
+    String? ubicacionUrl,
     String? linkPublico,
     String? adminToken,
     String? horaFin,
@@ -104,6 +109,7 @@ class EventoFecha {
       excedenteGenerado: excedenteGenerado ?? this.excedenteGenerado,
       estado: estado ?? this.estado,
       qrImagenPath: qrImagenPath ?? this.qrImagenPath,
+      ubicacionUrl: ubicacionUrl ?? this.ubicacionUrl,
       linkPublico: linkPublico ?? this.linkPublico,
       adminToken: adminToken ?? this.adminToken,
       creadoEn: creadoEn,

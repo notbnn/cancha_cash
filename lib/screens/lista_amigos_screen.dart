@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../models/constantes.dart';
+import '../models/jugador.dart';
 import '../providers/jugadores_por_evento_provider.dart';
 import '../providers/jugadores_provider.dart';
 
@@ -65,6 +66,251 @@ class ListaAmigosScreen extends ConsumerWidget {
     }
   }
 
+  /// Edita nombre y celular juntos. El nombre se propaga al backend
+  /// (ver JugadoresNotifier.renombrar); el celular queda solo local.
+  Future<void> _mostrarDialogoEditarJugador(
+    BuildContext context,
+    WidgetRef ref,
+    int jugadorId,
+    String nombreActual,
+    String? celularActual,
+  ) async {
+    final nombreControlador = TextEditingController(text: nombreActual);
+    final celularControlador = TextEditingController(
+      text: celularActual ?? '',
+    );
+
+    final guardar = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Editar jugador'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: nombreControlador,
+              autofocus: true,
+              decoration: const InputDecoration(labelText: 'Nombre'),
+            ),
+            TextField(
+              controller: celularControlador,
+              keyboardType: TextInputType.phone,
+              decoration: const InputDecoration(
+                labelText: 'Celular (opcional)',
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Guardar'),
+          ),
+        ],
+      ),
+    );
+
+    if (guardar != true) return;
+
+    final nuevoNombre = nombreControlador.text.trim();
+    final nuevoCelular = celularControlador.text.trim();
+
+    if (nuevoNombre.isNotEmpty && nuevoNombre != nombreActual) {
+      await ref
+          .read(jugadoresProvider.notifier)
+          .renombrar(jugadorId, nuevoNombre);
+    }
+    if (nuevoCelular != (celularActual ?? '')) {
+      await ref
+          .read(jugadoresProvider.notifier)
+          .actualizarCelular(jugadorId, nuevoCelular.isEmpty ? null : nuevoCelular);
+    }
+
+    // El listado agrupado por categoria usa otro provider — lo
+    // refrescamos tambien para que se vea lo nuevo ahi.
+    await ref.read(jugadoresPorEventoProvider.notifier).cargar();
+  }
+
+  /// Candidatos para fusionar con un jugador de una liga puntual: solo
+  /// los demas de esa misma liga (no tiene sentido mezclar gente de
+  /// grupos distintos aunque compartan nombre) mas los que todavia no
+  /// tienen ningun partido (esos no pertenecen a ninguna liga todavia,
+  /// asi que fusionarlos nunca genera un cruce indebido).
+  List<({int id, String nombre})> _candidatosDeLiga(
+    List<Map<String, dynamic>> jugadoresDeLaLiga,
+    List<Jugador> sinPartidos,
+    int idExcluir,
+  ) {
+    return [
+      for (final otro in jugadoresDeLaLiga)
+        if (otro['jugador_id'] != idExcluir)
+          (
+            id: otro['jugador_id'] as int,
+            nombre: otro['jugador_nombre'] as String,
+          ),
+      for (final otro in sinPartidos)
+        if (otro.id != idExcluir) (id: otro.id!, nombre: otro.nombre),
+    ];
+  }
+
+  /// Candidatos para fusionar con un jugador que todavia no tiene ningun
+  /// partido: como no pertenece a ninguna liga, no hay restriccion — se
+  /// ofrece cualquier otro jugador de cualquier liga (deduplicado, por
+  /// si esa persona ya jugo en mas de una).
+  List<({int id, String nombre})> _candidatosGlobales(
+    Map<int, Map<String, dynamic>> grupos,
+    List<Jugador> sinPartidos,
+    int idExcluir,
+  ) {
+    final vistos = <int, String>{};
+    for (final grupo in grupos.values) {
+      for (final otro in grupo['jugadores'] as List<Map<String, dynamic>>) {
+        final id = otro['jugador_id'] as int;
+        if (id != idExcluir) vistos[id] = otro['jugador_nombre'] as String;
+      }
+    }
+    for (final otro in sinPartidos) {
+      if (otro.id != idExcluir && otro.id != null) {
+        vistos[otro.id!] = otro.nombre;
+      }
+    }
+    return vistos.entries.map((e) => (id: e.key, nombre: e.value)).toList();
+  }
+
+  /// Fusiona a un jugador duplicado con otro — pensado para cuando la
+  /// misma persona quedo registrada varias veces con nombres distintos
+  /// (ej. confirmo por la web como "Juan" una semana y "Juanito" otra).
+  /// `candidatos` ya viene filtrado por liga (ver los dos metodos de
+  /// arriba) — este dialogo solo busca y confirma.
+  Future<void> _mostrarDialogoFusionar(
+    BuildContext context,
+    WidgetRef ref,
+    int idOrigen,
+    String nombreOrigen,
+    List<({int id, String nombre})> candidatos,
+  ) async {
+    if (candidatos.isEmpty) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'No hay otro jugador de esta liga con quien fusionar todavía.',
+            ),
+          ),
+        );
+      }
+      return;
+    }
+
+    final busquedaControlador = TextEditingController();
+
+    final destinoId = await showDialog<int>(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) {
+          final filtro = busquedaControlador.text.trim().toLowerCase();
+          final filtrados = filtro.isEmpty
+              ? candidatos
+              : candidatos
+                    .where((c) => c.nombre.toLowerCase().contains(filtro))
+                    .toList();
+
+          return AlertDialog(
+            title: Text('Fusionar "$nombreOrigen" con...'),
+            content: SizedBox(
+              width: double.maxFinite,
+              height: 320,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: busquedaControlador,
+                    autofocus: true,
+                    decoration: const InputDecoration(
+                      prefixIcon: Icon(Icons.search),
+                      hintText: 'Buscar por nombre',
+                    ),
+                    onChanged: (_) => setState(() {}),
+                  ),
+                  const SizedBox(height: 8),
+                  Expanded(
+                    child: filtrados.isEmpty
+                        ? const Center(child: Text('Sin resultados'))
+                        : ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: filtrados.length,
+                            itemBuilder: (context, i) => ListTile(
+                              leading: const CircleAvatar(
+                                child: Icon(Icons.person),
+                              ),
+                              title: Text(filtrados[i].nombre),
+                              onTap: () =>
+                                  Navigator.pop(context, filtrados[i].id),
+                            ),
+                          ),
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancelar'),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+
+    if (destinoId == null || !context.mounted) return;
+
+    final nombreDestino = candidatos
+        .firstWhere((c) => c.id == destinoId)
+        .nombre;
+
+    final confirmado = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Confirmar fusión'),
+        content: Text(
+          'Todos los partidos de "$nombreOrigen" van a quedar a nombre de '
+          '"$nombreDestino", y "$nombreOrigen" se borra del directorio. '
+          'Esto no se puede deshacer.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Fusionar'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmado != true) return;
+
+    await ref
+        .read(jugadoresProvider.notifier)
+        .fusionar(idOrigen: idOrigen, idDestino: destinoId);
+    await ref.read(jugadoresPorEventoProvider.notifier).cargar();
+
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('"$nombreOrigen" se fusionó con "$nombreDestino"'),
+        ),
+      );
+    }
+  }
+
   Future<bool> _eliminarJugador(
     BuildContext context,
     WidgetRef ref,
@@ -116,11 +362,12 @@ class ListaAmigosScreen extends ConsumerWidget {
       body: !hayAlgo
           ? const Center(
               child: Text(
-                'Todavía no agregaste ningún amigo.\nTocá + para empezar.',
+                'Todavía no agregaste ningún amigo.\nToca + para empezar.',
                 textAlign: TextAlign.center,
               ),
             )
           : ListView(
+              padding: const EdgeInsets.only(bottom: 88),
               children: [
                 for (final grupo in grupos.values) ...[
                   Padding(
@@ -164,6 +411,25 @@ class ListaAmigosScreen extends ConsumerWidget {
                         subtitle: jugador['jugador_celular'] != null
                             ? Text(jugador['jugador_celular'] as String)
                             : null,
+                        trailing: const Icon(Icons.edit, size: 18),
+                        onTap: () => _mostrarDialogoEditarJugador(
+                          context,
+                          ref,
+                          jugador['jugador_id'] as int,
+                          jugador['jugador_nombre'] as String,
+                          jugador['jugador_celular'] as String?,
+                        ),
+                        onLongPress: () => _mostrarDialogoFusionar(
+                          context,
+                          ref,
+                          jugador['jugador_id'] as int,
+                          jugador['jugador_nombre'] as String,
+                          _candidatosDeLiga(
+                            grupo['jugadores'] as List<Map<String, dynamic>>,
+                            sinPartidos,
+                            jugador['jugador_id'] as int,
+                          ),
+                        ),
                       ),
                     ),
                 ],
@@ -193,6 +459,21 @@ class ListaAmigosScreen extends ConsumerWidget {
                         subtitle: jugador.celular != null
                             ? Text(jugador.celular!)
                             : null,
+                        trailing: const Icon(Icons.edit, size: 18),
+                        onTap: () => _mostrarDialogoEditarJugador(
+                          context,
+                          ref,
+                          jugador.id!,
+                          jugador.nombre,
+                          jugador.celular,
+                        ),
+                        onLongPress: () => _mostrarDialogoFusionar(
+                          context,
+                          ref,
+                          jugador.id!,
+                          jugador.nombre,
+                          _candidatosGlobales(grupos, sinPartidos, jugador.id!),
+                        ),
                       ),
                     ),
                 ],

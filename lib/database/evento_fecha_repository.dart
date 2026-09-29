@@ -16,6 +16,7 @@ class EventoFechaRepository {
     double? cuotaPorPersona,
     double descuentoCajaChicaAplicado = 0,
     String? qrImagenPath,
+    String? ubicacionUrl,
   }) async {
     final db = await _db;
     final metaRecaudacion = costoReserva - descuentoCajaChicaAplicado;
@@ -34,6 +35,7 @@ class EventoFechaRepository {
         'excedente_generado': 0,
         'estado': EstadoEventoFecha.pendiente,
         'qr_imagen_path': qrImagenPath,
+        'ubicacion_url': ubicacionUrl,
         'link_publico': null,
         'creado_en': DateTime.now().toIso8601String(),
       });
@@ -224,6 +226,16 @@ class EventoFechaRepository {
     await db.update(
       'Eventos_Fechas',
       {'titulo': titulo},
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
+  Future<void> actualizarUbicacion(int id, String? ubicacionUrl) async {
+    final db = await _db;
+    await db.update(
+      'Eventos_Fechas',
+      {'ubicacion_url': ubicacionUrl},
       where: 'id = ?',
       whereArgs: [id],
     );

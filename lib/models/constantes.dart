@@ -9,6 +9,21 @@ class MetodoPago {
   static const qr = 'QR';
   static const efectivo = 'Efectivo';
   static const cajaChica = 'Caja Chica';
+
+  /// Convierte el string que manda el backend ("qr"/"efectivo", elegido
+  /// por el invitado en la web) al valor que usa la app acá adentro.
+  /// Si no lo reconoce (o es null), devuelve null — la pantalla cae al
+  /// default de siempre (QR).
+  static String? desdeBackend(String? valor) {
+    switch (valor) {
+      case 'qr':
+        return qr;
+      case 'efectivo':
+        return efectivo;
+      default:
+        return null;
+    }
+  }
 }
 
 class EstadoEventoFecha {
@@ -58,3 +73,4 @@ class Deporte {
     }
   }
 }
+

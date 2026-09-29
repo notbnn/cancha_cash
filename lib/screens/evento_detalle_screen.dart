@@ -195,6 +195,74 @@ class EventoDetalleScreen extends ConsumerWidget {
     }
   }
 
+  Future<void> _mostrarDialogoEditarUbicacion(
+    BuildContext context,
+    WidgetRef ref,
+    EventoFecha? evento,
+  ) async {
+    if (evento == null) return;
+    final controlador = TextEditingController(text: evento.ubicacionUrl ?? '');
+
+    final nuevaUbicacion = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Ubicación en Maps'),
+        content: TextField(
+          controller: controlador,
+          autofocus: true,
+          keyboardType: TextInputType.url,
+          decoration: const InputDecoration(
+            hintText: 'Pega el link que te da "Compartir" en Google Maps',
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancelar'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, controlador.text.trim()),
+            child: const Text('Guardar'),
+          ),
+        ],
+      ),
+    );
+
+    if (nuevaUbicacion == null) return;
+
+    final valor = nuevaUbicacion.isEmpty ? null : nuevaUbicacion;
+    await ref
+        .read(eventoFechaRepositoryProvider)
+        .actualizarUbicacion(eventoId, valor);
+    ref.invalidate(eventoFechaProvider(eventoId));
+
+    // Mismo patron que subir el QR: se guarda local primero (nunca falla),
+    // y el envio al backend es best-effort — si no hay internet ahora, el
+    // dato local queda igual y se puede reintentar guardando de nuevo.
+    if (valor != null) {
+      try {
+        if (evento.uuid != null && evento.adminToken != null) {
+          await BackendApi().actualizarUbicacion(
+            eventoIdBackend: evento.uuid!,
+            adminToken: evento.adminToken!,
+            ubicacionUrl: valor,
+          );
+        }
+      } catch (e) {
+        debugPrint('No se pudo actualizar la ubicacion en el backend: $e');
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                'Se guardó local, pero no se pudo subir al backend — reintenta cuando tengas internet.',
+              ),
+            ),
+          );
+        }
+      }
+    }
+  }
+
   Future<void> _mostrarDialogoEditarCuota(
     BuildContext context,
     WidgetRef ref,
@@ -255,7 +323,7 @@ class EventoDetalleScreen extends ConsumerWidget {
     final montoControlador = TextEditingController(
       text: montoSugerido > 0 ? montoSugerido.toStringAsFixed(0) : '',
     );
-    String metodo = MetodoPago.qr;
+    String metodo = (fila['metodo_pago_sugerido'] as String?) ?? MetodoPago.qr;
 
     final confirmado = await showDialog<bool>(
       context: context,
@@ -486,6 +554,9 @@ class EventoDetalleScreen extends ConsumerWidget {
                 case 'editar_cuota':
                   _mostrarDialogoEditarCuota(context, ref, eventoAsync.value);
                   break;
+                case 'editar_ubicacion':
+                  _mostrarDialogoEditarUbicacion(context, ref, eventoAsync.value);
+                  break;
                 case 'reporte':
                   Navigator.push(
                     context,
@@ -509,6 +580,13 @@ class EventoDetalleScreen extends ConsumerWidget {
                 child: ListTile(
                   leading: Icon(Icons.payments),
                   title: Text('Editar cuota'),
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'editar_ubicacion',
+                child: ListTile(
+                  leading: Icon(Icons.location_on),
+                  title: Text('Ubicación (Maps)'),
                 ),
               ),
               const PopupMenuItem(

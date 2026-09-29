@@ -63,6 +63,57 @@ class BackendApi {
     return lista.cast<Map<String, dynamic>>();
   }
 
+  /// Corrige el nombre de una confirmacion puntual — se usa cuando el
+  /// organizador renombra un jugador en la app y ese jugador ya habia
+  /// confirmado por la web para este partido (todavia abierto).
+  Future<void> corregirNombreConfirmacion({
+    required String eventoIdBackend,
+    required String adminToken,
+    required String confirmacionId,
+    required String nombreInvitado,
+  }) async {
+    final respuesta = await http.patch(
+      Uri.parse(
+        "$_baseUrl/api/eventos/$eventoIdBackend/confirmaciones/$confirmacionId",
+      ),
+      headers: {
+        "Content-Type": "application/json",
+        "x-admin-token": adminToken,
+      },
+      body: jsonEncode({"nombreInvitado": nombreInvitado}),
+    );
+
+    if (respuesta.statusCode != 200) {
+      throw Exception(
+        "No se pudo corregir el nombre en el backend: ${respuesta.body}",
+      );
+    }
+  }
+
+  /// Actualiza el link de ubicacion (Google Maps) del evento. Es texto
+  /// libre tal cual lo comparte la app de Maps — no se valida formato
+  /// del lado de la app, el backend tampoco lo valida como URL real.
+  Future<void> actualizarUbicacion({
+    required String eventoIdBackend,
+    required String adminToken,
+    required String ubicacionUrl,
+  }) async {
+    final respuesta = await http.patch(
+      Uri.parse("$_baseUrl/api/eventos/$eventoIdBackend"),
+      headers: {
+        "Content-Type": "application/json",
+        "x-admin-token": adminToken,
+      },
+      body: jsonEncode({"ubicacionUrl": ubicacionUrl}),
+    );
+
+    if (respuesta.statusCode != 200) {
+      throw Exception(
+        "No se pudo actualizar la ubicacion en el backend: ${respuesta.body}",
+      );
+    }
+  }
+
   /// Sube el QR de cobro al backend, como base64 (no hace falta ningún
   /// servicio de hosting de imágenes — el string se guarda tal cual en
   /// el campo `qrUrl`, y la página pública lo puede mostrar directo en

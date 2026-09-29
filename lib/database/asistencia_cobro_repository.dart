@@ -10,6 +10,7 @@ class AsistenciaCobroRepository {
     required int jugadorId,
     String? uuid,
     double montoPagado = 0,
+    String? metodoPagoSugerido,
   }) async {
     final db = await _db;
     return db.insert('Asistencias_Cobros', {
@@ -18,6 +19,7 @@ class AsistenciaCobroRepository {
       'jugador_id': jugadorId,
       'monto_pagado': montoPagado,
       'metodo_pago': null,
+      'metodo_pago_sugerido': metodoPagoSugerido,
       'estado': EstadoAsistencia.debe,
       'creado_en': DateTime.now().toIso8601String(),
     });
