@@ -482,6 +482,30 @@ class EventoDetalleScreen extends ConsumerWidget {
       await ref.read(ligasProvider.notifier).cargar();
       await ref.read(eventosPendientesProvider.notifier).cargar();
       await ref.read(eventosPorLigaProvider(evento.ligaId).notifier).cargar();
+
+      // Best-effort: si esto no llega (sin internet, etc.), el partido
+      // ya quedo cerrado local igual — el link publico se cierra en el
+      // siguiente intento (o la proxima vez que abras este partido).
+      if (evento.uuid != null && evento.adminToken != null) {
+        try {
+          await BackendApi().cerrarEvento(
+            eventoIdBackend: evento.uuid!,
+            adminToken: evento.adminToken!,
+          );
+        } catch (e) {
+          debugPrint('No se pudo cerrar el evento en el backend: $e');
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text(
+                  'Partido cerrado, pero el link público todavía no se actualizó — reintenta cuando tengas internet.',
+                ),
+              ),
+            );
+          }
+        }
+      }
+
       if (context.mounted) {
         await _mostrarAnimacionListo(context);
       }

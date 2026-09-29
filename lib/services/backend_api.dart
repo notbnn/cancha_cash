@@ -114,6 +114,28 @@ class BackendApi {
     }
   }
 
+  /// Le avisa al backend que el partido se cerro, para que la pagina
+  /// publica deje de aceptar confirmaciones nuevas de inmediato.
+  Future<void> cerrarEvento({
+    required String eventoIdBackend,
+    required String adminToken,
+  }) async {
+    final respuesta = await http.patch(
+      Uri.parse("$_baseUrl/api/eventos/$eventoIdBackend"),
+      headers: {
+        "Content-Type": "application/json",
+        "x-admin-token": adminToken,
+      },
+      body: jsonEncode({"estado": "cerrado"}),
+    );
+
+    if (respuesta.statusCode != 200) {
+      throw Exception(
+        "No se pudo cerrar el evento en el backend: ${respuesta.body}",
+      );
+    }
+  }
+
   /// Sube el QR de cobro al backend, como base64 (no hace falta ningún
   /// servicio de hosting de imágenes — el string se guarda tal cual en
   /// el campo `qrUrl`, y la página pública lo puede mostrar directo en
