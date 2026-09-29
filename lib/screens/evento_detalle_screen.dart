@@ -520,6 +520,43 @@ class EventoDetalleScreen extends ConsumerWidget {
     }
   }
 
+  /// Para partidos que ya se cerraron local (antes de que existiera el
+  /// aviso automatico al backend, o porque fallo por falta de internet
+  /// en su momento) — cierra el link publico ahora, a mano.
+  Future<void> _cerrarLinkPublico(BuildContext context, WidgetRef ref) async {
+    final evento = await ref
+        .read(eventoFechaRepositoryProvider)
+        .obtenerPorId(eventoId);
+    if (evento == null || evento.uuid == null || evento.adminToken == null) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Este partido no tiene link público generado.'),
+          ),
+        );
+      }
+      return;
+    }
+
+    try {
+      await BackendApi().cerrarEvento(
+        eventoIdBackend: evento.uuid!,
+        adminToken: evento.adminToken!,
+      );
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Link público cerrado.')),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('No se pudo cerrar el link público: $e')),
+        );
+      }
+    }
+  }
+
   Future<void> _sincronizar(BuildContext context, WidgetRef ref) async {
     try {
       await ref.read(asistenciasProvider(eventoId).notifier).sincronizar();
@@ -589,6 +626,10 @@ class EventoDetalleScreen extends ConsumerWidget {
                           ReporteEventoScreen(eventoId: eventoId)),
                     ),
                   );
+                  break;
+                case 'cerrar_link':
+                  _cerrarLinkPublico(context, ref);
+                  break;
               }
             },
             itemBuilder: (context) => [
@@ -626,6 +667,14 @@ class EventoDetalleScreen extends ConsumerWidget {
                   child: ListTile(
                     leading: Icon(Icons.flag),
                     title: Text('Cerrar partido'),
+                  ),
+                ),
+              if (cerrado)
+                const PopupMenuItem(
+                  value: 'cerrar_link',
+                  child: ListTile(
+                    leading: Icon(Icons.link_off),
+                    title: Text('Cerrar link público'),
                   ),
                 ),
             ],
