@@ -12,6 +12,8 @@ import '../providers/asistencias_provider.dart';
 import '../providers/caja_chica_provider.dart';
 import '../providers/eventos_pendientes_provider.dart';
 import '../providers/ligas_provider.dart';
+import '../providers/jugadores_provider.dart';
+import '../models/jugador.dart';
 import '../providers/repository_providers.dart';
 import '../models/evento_fecha.dart';
 import 'dart:convert';
@@ -50,6 +52,8 @@ class EventoDetalleScreen extends ConsumerWidget {
     final archivo = await ImagePicker().pickImage(
       source: origen,
       imageQuality: 85,
+      maxWidth: 1000,
+      maxHeight: 1000,
     );
     if (archivo == null) return;
 
@@ -126,12 +130,50 @@ class EventoDetalleScreen extends ConsumerWidget {
     BuildContext context,
     WidgetRef ref,
   ) async {
+    final opcion = await showDialog<String>(
+      context: context,
+      builder: (context) => SimpleDialog(
+        title: const Text('Añadir jugador en cancha'),
+        children: [
+          SimpleDialogOption(
+            onPressed: () => Navigator.pop(context, 'nuevo'),
+            child: const Row(
+              children: [
+                Icon(Icons.person_add_alt_1),
+                SizedBox(width: 12),
+                Text('Nuevo jugador'),
+              ],
+            ),
+          ),
+          SimpleDialogOption(
+            onPressed: () => Navigator.pop(context, 'existente'),
+            child: const Row(
+              children: [
+                Icon(Icons.search),
+                SizedBox(width: 12),
+                Text('Ya registrado'),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (!context.mounted) return;
+    if (opcion == 'nuevo') {
+      await _agregarJugadorNuevo(context, ref);
+    } else if (opcion == 'existente') {
+      await _agregarJugadorExistente(context, ref);
+    }
+  }
+
+  Future<void> _agregarJugadorNuevo(BuildContext context, WidgetRef ref) async {
     final controlador = TextEditingController();
 
     final nombre = await showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Añadir jugador en cancha'),
+        title: const Text('Nuevo jugador'),
         content: TextField(
           controller: controlador,
           autofocus: true,
@@ -154,6 +196,162 @@ class EventoDetalleScreen extends ConsumerWidget {
       await ref
           .read(asistenciasProvider(eventoId).notifier)
           .agregarJugador(nombre);
+    }
+  }
+
+  /// Busca entre los jugadores que ya están en el directorio (de otros
+  /// partidos) para añadir a alguien que llegó a último momento sin
+  /// crearle un registro nuevo y duplicado.
+  Future<void> _agregarJugadorExistente(
+    BuildContext context,
+    WidgetRef ref,
+  ) async {
+    final todos = ref.read(jugadoresProvider);
+    final yaInscritos = ref
+        .read(asistenciasProvider(eventoId))
+        .map((a) => a['jugador_id'] as int)
+        .toSet();
+    final candidatos = todos
+        .where((j) => !yaInscritos.contains(j.id))
+        .toList();
+
+    final busquedaControlador = TextEditingController();
+
+    final jugadorId = await showDialog<int>(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) {
+          final filtro = busquedaControlador.text.trim().toLowerCase();
+          final filtrados = filtro.isEmpty
+              ? candidatos
+              : candidatos
+                    .where((j) => j.nombre.toLowerCase().contains(filtro))
+                    .toList();
+
+          return AlertDialog(
+            title: const Text('Elegir jugador ya registrado'),
+            content: SizedBox(
+              width: double.maxFinite,
+              height: 320,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: busquedaControlador,
+                    autofocus: true,
+                    decoration: const InputDecoration(
+                      prefixIcon: Icon(Icons.search),
+                      hintText: 'Buscar por nombre',
+                    ),
+                    onChanged: (_) => setState(() {}),
+                  ),
+                  const SizedBox(height: 8),
+                  Expanded(
+                    child: filtrados.isEmpty
+                        ? const Center(child: Text('Sin resultados'))
+                        : ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: filtrados.length,
+                            itemBuilder: (context, i) => ListTile(
+                              leading: const CircleAvatar(
+                                child: Icon(Icons.person),
+                              ),
+                              title: Text(filtrados[i].nombre),
+                              onTap: () =>
+                                  Navigator.pop(context, filtrados[i].id),
+                            ),
+                          ),
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancelar'),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+
+    if (jugadorId == null || !context.mounted) return;
+
+    final agregado = await ref
+        .read(asistenciasProvider(eventoId).notifier)
+        .agregarJugadorExistente(jugadorId);
+
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            agregado ? 'Jugador añadido' : 'Ese jugador ya estaba en el partido',
+          ),
+        ),
+      );
+    }
+  }
+
+  /// Después de sincronizar pueden quedar dos jugadores con el mismo
+  /// celular (la misma persona con otro nombre en la web). Se lo
+  /// pregunta a mano, uno por uno, y fusiona con [JugadoresNotifier.fusionar].
+  Future<void> _resolverDuplicadosCelular(
+    BuildContext context,
+    WidgetRef ref,
+    List<List<Jugador>> grupos,
+  ) async {
+    for (final grupo in grupos) {
+      if (!context.mounted) return;
+
+      final elegidoId = await showDialog<int>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Posible jugador duplicado'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'El número ${grupo.first.celular} está anotado con '
+                '${grupo.length} nombres distintos. ¿Con cuál nos quedamos?',
+              ),
+              const SizedBox(height: 12),
+              for (final jugador in grupo)
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: const Icon(Icons.person),
+                  title: Text(jugador.nombre),
+                  onTap: () => Navigator.pop(context, jugador.id),
+                ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Ahora no'),
+            ),
+          ],
+        ),
+      );
+
+      if (elegidoId == null || !context.mounted) continue;
+
+      for (final jugador in grupo) {
+        if (jugador.id == elegidoId) continue;
+        await ref
+            .read(jugadoresProvider.notifier)
+            .fusionar(idOrigen: jugador.id!, idDestino: elegidoId);
+      }
+
+      if (context.mounted) {
+        final nombreElegido = grupo
+            .firstWhere((j) => j.id == elegidoId)
+            .nombre;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Jugadores fusionados en "$nombreElegido"')),
+        );
+      }
     }
   }
 
@@ -560,10 +758,19 @@ class EventoDetalleScreen extends ConsumerWidget {
   Future<void> _sincronizar(BuildContext context, WidgetRef ref) async {
     try {
       await ref.read(asistenciasProvider(eventoId).notifier).sincronizar();
+      await ref.read(jugadoresProvider.notifier).cargar();
+
       if (context.mounted) {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(const SnackBar(content: Text('Sincronizado')));
+      }
+
+      final duplicados = ref
+          .read(jugadoresProvider.notifier)
+          .duplicadosPorCelular();
+      if (duplicados.isNotEmpty && context.mounted) {
+        await _resolverDuplicadosCelular(context, ref, duplicados);
       }
     } catch (e) {
       if (context.mounted) {

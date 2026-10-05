@@ -128,6 +128,15 @@ class ListaAmigosScreen extends ConsumerWidget {
       await ref
           .read(jugadoresProvider.notifier)
           .actualizarCelular(jugadorId, nuevoCelular.isEmpty ? null : nuevoCelular);
+
+      if (nuevoCelular.isNotEmpty) {
+        final duplicados = ref
+            .read(jugadoresProvider.notifier)
+            .duplicadosPorCelular();
+        if (duplicados.isNotEmpty && context.mounted) {
+          await _resolverDuplicadosCelular(context, ref, duplicados);
+        }
+      }
     }
 
     // El listado agrupado por categoria usa otro provider — lo
@@ -186,6 +195,68 @@ class ListaAmigosScreen extends ConsumerWidget {
   /// (ej. confirmo por la web como "Juan" una semana y "Juanito" otra).
   /// `candidatos` ya viene filtrado por liga (ver los dos metodos de
   /// arriba) — este dialogo solo busca y confirma.
+  /// Pregunta uno por uno, con cual nombre nos quedamos cuando dos
+  /// jugadores terminan con el mismo celular, y fusiona con
+  /// [JugadoresNotifier.fusionar].
+  Future<void> _resolverDuplicadosCelular(
+    BuildContext context,
+    WidgetRef ref,
+    List<List<Jugador>> grupos,
+  ) async {
+    for (final grupo in grupos) {
+      if (!context.mounted) return;
+
+      final elegidoId = await showDialog<int>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Posible jugador duplicado'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'El número ${grupo.first.celular} está anotado con '
+                '${grupo.length} nombres distintos. ¿Con cuál nos quedamos?',
+              ),
+              const SizedBox(height: 12),
+              for (final jugador in grupo)
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: const Icon(Icons.person),
+                  title: Text(jugador.nombre),
+                  onTap: () => Navigator.pop(context, jugador.id),
+                ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Ahora no'),
+            ),
+          ],
+        ),
+      );
+
+      if (elegidoId == null || !context.mounted) continue;
+
+      for (final jugador in grupo) {
+        if (jugador.id == elegidoId) continue;
+        await ref
+            .read(jugadoresProvider.notifier)
+            .fusionar(idOrigen: jugador.id!, idDestino: elegidoId);
+      }
+
+      if (context.mounted) {
+        final nombreElegido = grupo
+            .firstWhere((j) => j.id == elegidoId)
+            .nombre;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Jugadores fusionados en "$nombreElegido"')),
+        );
+      }
+    }
+  }
+
   Future<void> _mostrarDialogoFusionar(
     BuildContext context,
     WidgetRef ref,

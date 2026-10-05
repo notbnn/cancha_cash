@@ -62,6 +62,20 @@ class JugadoresNotifier extends StateNotifier<List<Jugador>> {
     }
   }
 
+  /// Agrupa a los jugadores que comparten el mismo celular — señal de
+  /// que son la misma persona con dos registros (ej. se registró por la
+  /// web con un nombre distinto al que ya tenía en el directorio). Cada
+  /// grupo devuelto tiene 2 o más jugadores con el mismo número.
+  List<List<Jugador>> duplicadosPorCelular() {
+    final porCelular = <String, List<Jugador>>{};
+    for (final jugador in state) {
+      final celular = jugador.celular?.trim();
+      if (celular == null || celular.isEmpty) continue;
+      porCelular.putIfAbsent(celular, () => []).add(jugador);
+    }
+    return porCelular.values.where((grupo) => grupo.length > 1).toList();
+  }
+
   Future<void> _propagarNombre(int jugadorId, String nombre) async {
     final objetivos = await _repo.obtenerConfirmacionesAbiertasPara(jugadorId);
     for (final fila in objetivos) {

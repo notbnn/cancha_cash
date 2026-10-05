@@ -59,6 +59,21 @@ class AsistenciasNotifier extends StateNotifier<List<Map<String, dynamic>>> {
     await _ref.read(eventosPendientesProvider.notifier).cargar();
   }
 
+  /// Añade a un jugador que ya existe en el directorio (walk-in que ya
+  /// habia jugado antes) — a diferencia de [agregarJugador], no crea un
+  /// registro nuevo. Devuelve false sin hacer nada si esa persona ya
+  /// estaba anotada en este partido.
+  Future<bool> agregarJugadorExistente(int jugadorId) async {
+    if (await _repo.existeParaEventoYJugador(eventoId, jugadorId)) {
+      return false;
+    }
+    await _repo.inscribir(eventoId: eventoId, jugadorId: jugadorId);
+    await cargar();
+    await _ref.read(morososProvider.notifier).cargar();
+    await _ref.read(eventosPendientesProvider.notifier).cargar();
+    return true;
+  }
+
   Future<void> eliminar(int asistenciaId) async {
     await _repo.eliminar(asistenciaId);
     await cargar();
