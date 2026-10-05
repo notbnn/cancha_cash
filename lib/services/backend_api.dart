@@ -8,7 +8,7 @@ class BackendApi {
   // OJO: esta URL depende de dónde estés probando la app — la ajustamos
   // en el próximo paso según tu caso (emulador, celular físico o
   // escritorio).
-  static const String _baseUrl = "https://cancha-semanal-backend.onrender.com";
+  static const String _baseUrl = "https://canchacash.up.railway.app";
 
   /// Arma la URL pública completa a partir del slug que devuelve el
   /// backend — es la que la app va a guardar como `linkPublico`.
