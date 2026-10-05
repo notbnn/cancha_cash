@@ -45,6 +45,7 @@ class EventosNotifier extends StateNotifier<List<EventoFecha>> {
       final respuesta = await BackendApi().crearEvento(
         fecha: fechaExacta,
         horaFin: horaFin,
+        titulo: titulo,
       );
       final linkPublico = BackendApi.urlPublica(respuesta['slug'] as String);
 

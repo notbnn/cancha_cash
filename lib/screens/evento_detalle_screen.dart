@@ -385,11 +385,37 @@ class EventoDetalleScreen extends ConsumerWidget {
       ),
     );
 
-    if (nuevoTitulo != null) {
-      await ref
-          .read(eventoFechaRepositoryProvider)
-          .actualizarTitulo(eventoId, nuevoTitulo.isEmpty ? null : nuevoTitulo);
-      ref.invalidate(eventoFechaProvider(eventoId));
+    if (nuevoTitulo == null) return;
+
+    final valor = nuevoTitulo.isEmpty ? null : nuevoTitulo;
+    await ref
+        .read(eventoFechaRepositoryProvider)
+        .actualizarTitulo(eventoId, valor);
+    ref.invalidate(eventoFechaProvider(eventoId));
+
+    // Mismo patron best-effort que la ubicacion: local primero, backend
+    // despues si hay internet.
+    if (valor != null) {
+      try {
+        if (evento.uuid != null && evento.adminToken != null) {
+          await BackendApi().actualizarTitulo(
+            eventoIdBackend: evento.uuid!,
+            adminToken: evento.adminToken!,
+            titulo: valor,
+          );
+        }
+      } catch (e) {
+        debugPrint('No se pudo actualizar el titulo en el backend: $e');
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                'Se guardó local, pero no se pudo subir al backend — reintenta cuando tengas internet.',
+              ),
+            ),
+          );
+        }
+      }
     }
   }
 

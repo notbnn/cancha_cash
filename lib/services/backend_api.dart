@@ -21,6 +21,7 @@ class BackendApi {
     required DateTime fecha,
     String? nombreCancha,
     String? horaFin,
+    String? titulo,
   }) async {
     final respuesta = await http.post(
       Uri.parse("$_baseUrl/api/eventos"),
@@ -31,6 +32,8 @@ class BackendApi {
         if (nombreCancha != null) "nombreCancha": nombreCancha,
         // ignore: use_null_aware_elements
         if (horaFin != null) "horaFin": horaFin,
+        // ignore: use_null_aware_elements
+        if (titulo != null) "titulo": titulo,
       }),
     );
 
@@ -110,6 +113,30 @@ class BackendApi {
     if (respuesta.statusCode != 200) {
       throw Exception(
         "No se pudo actualizar la ubicacion en el backend: ${respuesta.body}",
+      );
+    }
+  }
+
+  /// Actualiza el nombre que el organizador le puso al partido (ej.
+  /// "Bajo Llojeta") — la pagina publica lo muestra como titulo arriba
+  /// de todo en vez de "Partido semanal".
+  Future<void> actualizarTitulo({
+    required String eventoIdBackend,
+    required String adminToken,
+    required String titulo,
+  }) async {
+    final respuesta = await http.patch(
+      Uri.parse("$_baseUrl/api/eventos/$eventoIdBackend"),
+      headers: {
+        "Content-Type": "application/json",
+        "x-admin-token": adminToken,
+      },
+      body: jsonEncode({"titulo": titulo}),
+    );
+
+    if (respuesta.statusCode != 200) {
+      throw Exception(
+        "No se pudo actualizar el titulo en el backend: ${respuesta.body}",
       );
     }
   }
