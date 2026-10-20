@@ -43,12 +43,41 @@ class AsistenciasNotifier extends StateNotifier<List<Map<String, dynamic>>> {
     );
     await cargar();
     await _ref.read(morososProvider.notifier).cargar();
+    await _sincronizarPagoConBackend(asistenciaId, pagado: true);
   }
 
   Future<void> desmarcar(int asistenciaId) async {
     await _repo.desmarcarPago(asistenciaId);
     await cargar();
     await _ref.read(morososProvider.notifier).cargar();
+    await _sincronizarPagoConBackend(asistenciaId, pagado: false);
+  }
+
+  /// Si esta asistencia vino de una confirmación de la web (tiene uuid),
+  /// le avisa al backend que cambió el estado de pago — best-effort,
+  /// igual que el resto de llamadas al backend: si falla (sin internet,
+  /// etc.), el cambio local ya quedó guardado, solo no se refleja en el
+  /// link público hasta que vuelva a sincronizar.
+  Future<void> _sincronizarPagoConBackend(
+    int asistenciaId, {
+    required bool pagado,
+  }) async {
+    try {
+      final uuid = await _repo.obtenerUuid(asistenciaId);
+      if (uuid == null) return;
+
+      final evento = await _eventoRepo.obtenerPorId(eventoId);
+      if (evento?.uuid == null || evento?.adminToken == null) return;
+
+      await BackendApi().actualizarPagoConfirmacion(
+        eventoIdBackend: evento!.uuid!,
+        adminToken: evento.adminToken!,
+        confirmacionId: uuid,
+        pagado: pagado,
+      );
+    } catch (_) {
+      // best-effort: no interrumpe el flujo local si falla.
+    }
   }
 
   Future<void> agregarJugador(String nombre) async {

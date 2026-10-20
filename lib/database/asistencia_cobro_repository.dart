@@ -25,6 +25,22 @@ class AsistenciaCobroRepository {
     });
   }
 
+  /// El uuid de la confirmacion del backend que originó esta asistencia
+  /// (null si fue agregada manualmente en la app, sin pasar por la web).
+  /// Lo usa el provider para saber si hay que avisarle al backend cuando
+  /// cambia el estado de pago.
+  Future<String?> obtenerUuid(int id) async {
+    final db = await _db;
+    final filas = await db.query(
+      'Asistencias_Cobros',
+      columns: ['uuid'],
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+    if (filas.isEmpty) return null;
+    return filas.first['uuid'] as String?;
+  }
+
   Future<bool> existePorUuid(String uuid) async {
     final db = await _db;
     final filas = await db.query(

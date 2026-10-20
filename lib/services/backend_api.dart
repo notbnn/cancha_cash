@@ -93,6 +93,35 @@ class BackendApi {
     }
   }
 
+  /// Marca o desmarca el pago de una confirmacion puntual en el backend,
+  /// para que el link publico muestre el tick/cruz correcto. Se llama
+  /// solo cuando esa asistencia vino de una confirmacion de la web (tiene
+  /// uuid) — las agregadas manualmente en la app no tienen con qué
+  /// confirmacion del backend sincronizar.
+  Future<void> actualizarPagoConfirmacion({
+    required String eventoIdBackend,
+    required String adminToken,
+    required String confirmacionId,
+    required bool pagado,
+  }) async {
+    final respuesta = await http.patch(
+      Uri.parse(
+        "$_baseUrl/api/eventos/$eventoIdBackend/confirmaciones/$confirmacionId/pago",
+      ),
+      headers: {
+        "Content-Type": "application/json",
+        "x-admin-token": adminToken,
+      },
+      body: jsonEncode({"pagado": pagado}),
+    );
+
+    if (respuesta.statusCode != 200) {
+      throw Exception(
+        "No se pudo actualizar el pago en el backend: ${respuesta.body}",
+      );
+    }
+  }
+
   /// Actualiza el link de ubicacion (Google Maps) del evento. Es texto
   /// libre tal cual lo comparte la app de Maps — no se valida formato
   /// del lado de la app, el backend tampoco lo valida como URL real.
