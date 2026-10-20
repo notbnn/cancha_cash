@@ -25,6 +25,20 @@ class AsistenciasNotifier extends StateNotifier<List<Map<String, dynamic>>> {
     this.eventoId,
   ) : super([]) {
     cargar();
+    _sincronizarAlAbrir();
+  }
+
+  /// Sincroniza con el backend automáticamente apenas se abre la pantalla
+  /// de este partido — así el organizador ya no tiene que acordarse de
+  /// tocar "Sincronizar" cada vez. Best-effort: si no hay internet o el
+  /// partido todavía no tiene link generado, falla en silencio y se queda
+  /// con lo que ya había localmente.
+  Future<void> _sincronizarAlAbrir() async {
+    try {
+      await sincronizar();
+    } catch (_) {
+      // best-effort: sin link generado o sin internet, no interrumpe nada.
+    }
   }
 
   Future<void> cargar() async {
